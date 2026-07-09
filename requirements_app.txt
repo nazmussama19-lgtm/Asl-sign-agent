@@ -1,0 +1,10 @@
+streamlit
+streamlit-webrtc
+tensorflow==2.15.0
+numpy<2
+mediapipe==0.10.9
+opencv-python
+pandas
+scikit-learn
+matplotlib
+deep-translator

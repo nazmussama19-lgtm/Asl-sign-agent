@@ -1,0 +1,29 @@
+# Environnements & caches
+.venv/
+venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Datasets (a telecharger par l'utilisateur - voir README)
+Asl_Sign_Data/
+data_signs/
+asl_mediapipe_keypoints_dataset.csv
+
+# Artefacts regenerables
+assets/best_signs/
+assets/word_signs_gifs/
+assets/clean_signs/
+
+# Donnees PERSONNELLES de l'utilisateur (ne jamais publier)
+assets/user_samples.csv
+assets/personal_letters.csv
+assets/practice_stats.json
+assets/custom_signs.json
+
+# Ancien modele de comparaison (lourd, non utilise)
+sign_language_model_MobileNetV2.h5
+
+# Divers
+*.zip
+.DS_Store
