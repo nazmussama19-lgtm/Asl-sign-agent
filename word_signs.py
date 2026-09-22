@@ -1,7 +1,7 @@
 """Signes-mots : caracteristiques de sequences, reconnaissance GRU et signes personnalises.
 
 IMPORTANT : build_frame_features / resample doivent rester IDENTIQUES a ceux du notebook
-d'entrainement (03_entrainement_signes_mots.ipynb). Toute divergence detruit la precision
+d'entrainement (notebooks/03_word_signs_training.ipynb). Toute divergence detruit la precision
 silencieusement (meme lecon que pour la normalisation des lettres).
 """
 import os, json, time, threading

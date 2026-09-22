@@ -106,7 +106,7 @@ def test_practice_engine_flow():
     assert s["completed"] and s["idx"] == 2
     assert s["stats"]["confusion"].get("I>K") == 1
     assert "J" not in LETTERS and "Z" not in LETTERS
-    assert pick_word("letters", "fr", "Facile", load_stats()) in LETTERS
+    assert pick_word("letters", "fr", "Easy", load_stats()) in LETTERS
     for p in (STATS_PATH, SAMPLES_PATH):
         if os.path.exists(p):
             os.remove(p)

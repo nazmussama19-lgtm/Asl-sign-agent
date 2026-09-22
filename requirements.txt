@@ -1,0 +1,15 @@
+# Python 3.11 required (TensorFlow 2.15 + MediaPipe 0.10.9).
+# Versions are pinned together: MediaPipe 0.10.9 needs protobuf < 4, which caps Streamlit at <= 1.60.
+streamlit==1.45.1
+streamlit-webrtc==0.67.4
+# CPU-only build on Linux (Streamlit Cloud): same model, much smaller install.
+tensorflow-cpu==2.15.0; sys_platform == "linux"
+tensorflow==2.15.0; sys_platform != "linux"
+mediapipe==0.10.9
+opencv-contrib-python==4.10.0.84
+protobuf==3.20.3
+numpy==1.26.4
+pandas==2.2.3
+scikit-learn==1.5.2
+matplotlib==3.9.2
+deep-translator==1.11.4

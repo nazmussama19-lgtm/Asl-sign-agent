@@ -11,6 +11,8 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install test dependencies
-        run: pip install numpy pytest
-      - name: Run tests (core modules, no webcam/TF needed)
+        run: pip install numpy==1.26.4 pytest ruff
+      - name: Lint (syntax errors, undefined names)
+        run: ruff check .
+      - name: Run tests (core modules and conversation engine, no webcam/TF/API key needed)
         run: pytest tests/ -q
