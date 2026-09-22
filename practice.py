@@ -15,14 +15,14 @@ LETTERS = "ABCDEFGHIKLMNOPQRSTUVWXY"   # sans J/Z (lettres gestuelles, hors peri
 
 WORDS = {
     "en": {
-        "Facile":   ["CAT", "DOG", "SUN", "YES", "HI", "LOVE", "GOOD", "FUN", "TOP", "WIN"],
-        "Moyen":    ["HELLO", "WORLD", "HAPPY", "MUSIC", "SMILE", "DREAM", "LIGHT", "PEACE", "DANCE", "STORY"],
-        "Difficile":["FRIENDS", "MORNING", "AWESOME", "VICTORY", "HARMONY", "STRENGTH", "CREATIVE", "SUNSHINE"],
+        "Easy":     ["CAT", "DOG", "SUN", "YES", "HI", "LOVE", "GOOD", "FUN", "TOP", "WIN"],
+        "Medium":   ["HELLO", "WORLD", "HAPPY", "MUSIC", "SMILE", "DREAM", "LIGHT", "PEACE", "DANCE", "STORY"],
+        "Hard":    ["FRIENDS", "MORNING", "AWESOME", "VICTORY", "HARMONY", "STRENGTH", "CREATIVE", "SUNSHINE"],
     },
     "fr": {
-        "Facile":   ["CHAT", "AMI", "OUI", "VIE", "ROI", "MER", "FEU", "LUNE", "PAIN", "MAIN"],
-        "Moyen":    ["SOLEIL", "BONNE", "MERCI", "AMOUR", "REVER", "DANSE", "MONDE", "COEUR", "SALUT", "MUSIQUE"],
-        "Difficile":["VICTOIRE", "COURAGE", "LUMIERE", "SOURIRE", "HARMONIE", "CREATIF", "MONTAGNE", "AVENTURE"],
+        "Easy":     ["CHAT", "AMI", "OUI", "VIE", "ROI", "MER", "FEU", "LUNE", "PAIN", "MAIN"],
+        "Medium":   ["SOLEIL", "BONNE", "MERCI", "AMOUR", "REVER", "DANSE", "MONDE", "COEUR", "SALUT", "MUSIQUE"],
+        "Hard":    ["VICTOIRE", "COURAGE", "LUMIERE", "SOURIRE", "HARMONIE", "CREATIF", "MONTAGNE", "AVENTURE"],
     },
 }
 

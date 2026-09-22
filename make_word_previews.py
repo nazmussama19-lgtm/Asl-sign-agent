@@ -15,7 +15,7 @@ FPS_MS = 80
 
 CONNECTIONS = [(0,1),(1,2),(2,3),(3,4),(0,5),(5,6),(6,7),(7,8),(5,9),(9,10),(10,11),(11,12),
                (9,13),(13,14),(14,15),(15,16),(13,17),(17,18),(18,19),(19,20),(0,17)]
-INDIGO = (91, 75, 230); CYAN = (6, 182, 212); DARK = (20, 21, 43); BG = (247, 248, 253)
+INDIGO = (36, 70, 224); CYAN = (255, 210, 63); DARK = (16, 32, 74); BG = (250, 251, 253)   # app palette: cobalt, signal yellow, ink, paper
 
 def load_hands(path):
     import pandas as pd
@@ -72,7 +72,7 @@ def main():
     for sign, g in subset.groupby("sign"):
         dest = os.path.join(OUT, sign + ".gif")
         if os.path.exists(dest):
-            print(sign, ": deja fait"); continue
+            print(sign, ": already done"); continue
         best, best_score = None, -1
         for row in g.itertuples():
             p = os.path.join(DATA, "raw", f"{row.sequence_id}.parquet")
@@ -83,10 +83,10 @@ def main():
             if s > best_score:
                 best, best_score = fr, s
         if best and render_gif(best, dest, sign):
-            print(sign, f": GIF genere ({len(best)} images, score {best_score:.2f})")
+            print(sign, f": GIF created ({len(best)} frames, score {best_score:.2f})")
         else:
-            print(sign, ": aucune sequence exploitable")
-    print("Termine ->", OUT)
+            print(sign, ": no usable sequence")
+    print("Done ->", OUT)
 
 if __name__ == "__main__":
     main()

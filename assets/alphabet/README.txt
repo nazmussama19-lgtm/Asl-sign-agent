@@ -1,2 +1,2 @@
-(Optionnel) Depose ici 26 images nommees A.jpg ... Z.jpg si tu veux forcer des images
-d'alphabet precises. Sinon, l'app utilise automatiquement le dossier Asl_Sign_Data.
+(Optional) Put 26 images named A.jpg ... Z.jpg (or .png/.svg) here to force specific alphabet images.
+Otherwise the app uses the Asl_Sign_Data folder if present, or public-domain drawings from Wikimedia Commons.

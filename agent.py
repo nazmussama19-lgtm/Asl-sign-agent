@@ -123,9 +123,9 @@ def _detect_lang(words):
     fr = sum(1 for w in words if w.upper() in FR_SET and w.upper() not in EN_SET)
     en = sum(1 for w in words if w.upper() in EN_SET and w.upper() not in FR_SET)
     if fr > en:
-        return "francais"
+        return "French"
     if en > fr:
-        return "anglais"
+        return "English"
     return None
 
 def interpret(raw):
@@ -133,47 +133,47 @@ def interpret(raw):
     journal = []
     s = re.sub(r"[^A-Za-z ]", "", raw).upper().strip()
     if not s:
-        return "", ["(rien a interpreter)"]
+        return "", ["(nothing to interpret)"]
     t = collapse_repeats(s)
     if t != s:
-        journal.append("Repetitions supprimees : " + s + " -> " + t)
+        journal.append("Removed repeats: " + s + " -> " + t)
 
     def expand_or_correct(w):
         if w in ABBREV:
             rep = ABBREV[w]
-            journal.append("Abreviation : " + w + " -> " + rep)
+            journal.append("Shorthand: " + w + " -> " + rep)
             return rep.split()
         cw, changed = correct_word(w)
         if changed:
-            journal.append("Correction : " + w + " -> " + cw)
+            journal.append("Fixed typo: " + w + " -> " + cw)
         return [cw]
 
     words = []
     for chunk in t.split():
         if chunk in ABBREV:
             rep = ABBREV[chunk]
-            journal.append("Abreviation : " + chunk + " -> " + rep)
+            journal.append("Shorthand: " + chunk + " -> " + rep)
             words.extend(rep.split())
             continue
         if chunk in VOCAB_SET:
             words.append(chunk); continue
         seg = segment(chunk)
         if seg != chunk:
-            journal.append("Segmentation : " + chunk + " -> " + seg)
+            journal.append("Split words: " + chunk + " -> " + seg)
         for w in seg.split():
             words.extend(expand_or_correct(w))
 
     lang = _detect_lang(words)
     if lang:
-        journal.append("Langue detectee : " + lang)
+        journal.append("Language: " + lang)
 
     out = [w.lower() for w in words]
-    if lang == "anglais":
+    if lang == "English":
         out = ["I" if w == "i" else w for w in out]     # 'I' majuscule en anglais
     final = " ".join(out).strip()
     final = (final[:1].upper() + final[1:]) if final else final
     if not journal:
-        journal.append("Texte deja coherent, aucune correction necessaire.")
+        journal.append("Already clean, nothing to change.")
     return final, journal
 
 class InterpretingAgent:

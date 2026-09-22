@@ -32,14 +32,14 @@ def main():
     # 1) index des sequences
     idx_csv = os.path.join(OUT, "train.csv")
     if not os.path.exists(idx_csv):
-        print("Telechargement de l'index (train.csv)...")
+        print("Downloading the index (train.csv)...")
         api.competition_download_file("asl-signs", "train.csv", path=OUT)
         z = os.path.join(OUT, "train.csv.zip")
         if os.path.exists(z):
             with zipfile.ZipFile(z) as f: f.extractall(OUT)
             os.remove(z)
     df = pd.read_csv(idx_csv)
-    print("Index :", len(df), "sequences,", df["sign"].nunique(), "signes")
+    print("Index:", len(df), "sequences,", df["sign"].nunique(), "signs")
 
     # 2) sous-ensemble equilibre des signes choisis
     # (boucle explicite : robuste a toutes les versions de pandas,
@@ -51,9 +51,9 @@ def main():
     subset = pd.concat(parts).reset_index(drop=True)
     missing = sorted(set(SIGNS) - set(subset["sign"].unique()))
     if missing:
-        print("ATTENTION - signes absents du dataset :", missing)
+        print("WARNING - signs missing from the dataset:", missing)
     subset.to_csv(os.path.join(OUT, "subset.csv"), index=False)
-    print("Sous-ensemble :", len(subset), "sequences a telecharger")
+    print("Subset:", len(subset), "sequences to download")
 
     # 3) telechargement parallele, avec reprise
     def fetch(row):
@@ -81,8 +81,8 @@ def main():
             done += 1
             if done % 50 == 0:
                 print(f"  {done}/{len(subset)}")
-    print("Termine. Fichiers dans", os.path.join(OUT, "raw"))
-    print("Etape suivante : ouvrir le notebook 03_entrainement_signes_mots.ipynb")
+    print("Done. Files in", os.path.join(OUT, "raw"))
+    print("Next step: open notebooks/03_word_signs_training.ipynb")
 
 if __name__ == "__main__":
     main()

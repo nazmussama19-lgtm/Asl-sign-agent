@@ -1,119 +1,114 @@
 import os
 import streamlit as st
-from ui import inject_css, get_word_sign_gifs, _dataset_base
+from ui import inject_css, tiles_html, section, get_word_sign_gifs, word_sign_labels, _dataset_base, uses_remote_images
 
 inject_css()
 
-# ---------------- Hero ----------------
-st.markdown('''
-<div class="asl-hero">
-  <div class="asl-badge"><span class="live-dot"></span> Temps reel &nbsp;\u00b7&nbsp; 100% local &nbsp;\u00b7&nbsp; gratuit</div>
-  <h1>Un agent IA qui lit la langue des signes</h1>
-  <p>Signe devant ta webcam : l\'application reconnait l\'alphabet ASL et des signes-mots,
-  reconstruit tes phrases, te repond et parle \u2014 sans qu\'aucune image ne quitte ta machine.</p>
-</div>
-''', unsafe_allow_html=True)
-
-# ---------------- Pipeline ----------------
-st.markdown('''
-<div class="pipe">
-  <span class="step">\U0001F4F7 Camera</span><span class="arr">\u2192</span>
-  <span class="step">\u270B <b>21 points</b> MediaPipe</span><span class="arr">\u2192</span>
-  <span class="step">\U0001F9E0 Lettres <b>&amp;</b> signes-mots</span><span class="arr">\u2192</span>
-  <span class="step">\U0001F916 <b>Agent</b> : segmente, corrige</span><span class="arr">\u2192</span>
-  <span class="step">\U0001F4AC Conversation</span><span class="arr">\u2192</span>
-  <span class="step">\U0001F50A Voix</span>
-</div>
-''', unsafe_allow_html=True)
-
-# ---------------- Chiffres cles ----------------
-n_words = len(get_word_sign_gifs())
+# ---------------- Hero: the whole pipeline on one real sentence ----------------
 st.markdown(f'''
-<div class="stats">
-  <div class="stat"><div class="n">28</div><div class="l">signes statiques (A\u2013Z, espace, suppression)</div></div>
-  <div class="stat"><div class="n">{n_words if n_words else 24}</div><div class="l">signes-mots (dataset Google ASL Signs)</div></div>
-  <div class="stat"><div class="n">23\u202f000</div><div class="l">mots FR + EN dans la memoire de l\'agent</div></div>
-  <div class="stat"><div class="n">0\u20ac</div><div class="l">aucune API payante, tout tourne en local</div></div>
+<div class="hero">
+  <div>
+    <h1>Sign in front of your webcam. The agent reads it, replies and speaks.</h1>
+    <p>ASL Sign Agent recognizes the American Sign Language alphabet and a set of word signs,
+    turns raw fingerspelling into a clean sentence, then holds a conversation with you,
+    out loud.</p>
+  </div>
+  <div class="demo-card">
+    <div class="demo-step">What the camera reads</div>
+    {tiles_html("ILOVEU", done=6)}
+    <div class="demo-step">What the agent understands</div>
+    <div class="readout">I love you</div>
+    <div class="demo-step">What it answers</div>
+    <div class="bubble">That's very kind! How is your day going?</div>
+  </div>
 </div>
 ''', unsafe_allow_html=True)
 
-st.markdown("")
+if st.button("Open the live demo", type="primary", icon=":material/front_hand:"):
+    st.switch_page("views/sign_to_text.py")
 
-# ---------------- Cartes des fonctionnalites ----------------
-def card(icon, title, text):
-    st.markdown(f'''<div class="asl-card"><div class="ico">{icon}</div>
-    <h3>{title}</h3><p>{text}</p></div>''', unsafe_allow_html=True)
+# ---------------- How it works: a real sequence ----------------
+section("How it works")
+st.markdown('''
+<ol class="steps">
+  <li><b>Camera</b>Your webcam stream is processed frame by frame.</li>
+  <li><b>21 hand landmarks</b>MediaPipe locates your hand joints, so lighting and background matter less.</li>
+  <li><b>Letters and word signs</b>A neural network reads each static letter, a sequence model reads moving word signs.</li>
+  <li><b>Interpreting agent</b>It splits words, fixes typos and expands shorthand: "ILOVEU" becomes "I love you".</li>
+  <li><b>Conversation</b>An AI model replies in your language, English or French.</li>
+  <li><b>Voice</b>Your browser reads the reply out loud.</li>
+</ol>
+''', unsafe_allow_html=True)
 
-r1 = st.columns(3)
-with r1[0]:
-    card("\u270B", "Sign to Text",
-         "Epelle ou signe des mots entiers : l\'agent construit la phrase, l\'interprete tout seul apres une pause, repond et la lit a voix haute.")
-    st.page_link("views/sign_to_text.py", label="Ouvrir la demo", icon="\u27A1\uFE0F")
-with r1[1]:
-    card("\U0001F3AE", "Entrainement",
-         "Defis gamifies, score et series, mode adaptatif qui cible tes lettres faibles, et statistiques personnelles persistantes.")
-    st.page_link("views/entrainement.py", label="S\'entrainer", icon="\u27A1\uFE0F")
-with r1[2]:
-    card("\u2328\uFE0F", "Text to Sign",
-         "Tape une phrase (FR ou EN) : signes-mots animes quand ils existent, epellation sinon \u2014 avec export GIF a partager.")
-    st.page_link("views/text_to_sign.py", label="Traduire", icon="\u27A1\uFE0F")
+n_words = len(word_sign_labels()) or 9
+st.markdown(f'''
+<div class="facts">
+  <span><b>99.23%</b>accuracy on the 28 static signs</span>
+  <span><b>86%</b>accuracy on 24 word signs</span>
+  <span><b>{n_words}</b>word signs in this demo</span>
+  <span><b>23,000</b>English and French words known by the agent</span>
+</div>
+''', unsafe_allow_html=True)
 
-r2 = st.columns(3)
-with r2[0]:
-    card("\U0001F9E9", "Personnalisation",
-         "Cree tes propres signes en 3 gestes, et corrige les lettres qui marchent mal chez toi avec 5 exemples \u2014 sans reentrainement.")
-    st.page_link("views/sign_to_text.py", label="Personnaliser (dans la demo)", icon="\u27A1\uFE0F")
-with r2[1]:
-    card("\U0001F524", "Charte ASL",
-         "Les 26 lettres en photos reelles, les signes-mots en animations, et des liens vers de vraies personnes qui signent.")
-    st.page_link("views/charte.py", label="Apprendre les signes", icon="\u27A1\uFE0F")
-with r2[2]:
-    card("\U0001F4CA", "Resultats",
-         "Precision, matrice de confusion et F1 par lettre, calcules en direct depuis le modele \u2014 avec une lecture critique honnete.")
-    st.page_link("views/resultats.py", label="Voir les metriques", icon="\u27A1\uFE0F")
+# ---------------- What you can do ----------------
+section("What you can do")
+c1, c2 = st.columns(2, gap="large")
+with c1:
+    st.page_link("views/sign_to_text.py", label="Sign to Text", icon=":material/front_hand:")
+    st.caption("Fingerspell or sign whole words. After a short pause the agent interprets your "
+               "sentence, answers and reads the answer out loud.")
+    st.page_link("views/practice_mode.py", label="Practice", icon=":material/sports_score:")
+    st.caption("Spell the word on screen, letter by letter. Adaptive drills bring back the letters "
+               "you miss most.")
+    st.page_link("views/text_to_sign.py", label="Text to Sign", icon=":material/keyboard:")
+    st.caption("Type a sentence in English or French and watch it spelled in ASL. Export it as a GIF.")
+with c2:
+    st.page_link("views/chart.py", label="ASL Chart", icon=":material/sort_by_alpha:")
+    st.caption("All 26 letters of the ASL alphabet, with links to videos of real signers.")
+    st.page_link("views/sign_to_text.py", label="Personalization", icon=":material/tune:")
+    st.caption("Teach the app your own sign in 3 gestures, or fix a letter that fails for your hand "
+               "with 5 examples. No retraining needed.")
+    st.page_link("views/results.py", label="Results", icon=":material/monitoring:")
+    st.caption("Accuracy and per-letter scores of the letter recognition model.")
 
-# ---------------- Demarrage : etat de l\'installation ----------------
-st.markdown("---")
-st.markdown('<div class="asl-header"><span class="bar"></span><h2>Demarrage</h2></div>', unsafe_allow_html=True)
-st.markdown('<div class="asl-sub">Etat de ton installation \u2014 tout est optionnel sauf le premier point.</div>', unsafe_allow_html=True)
+# ---------------- Setup status ----------------
+section("Setup status", "What this installation can do right now. Only the first item is required.")
+
 
 def check(ok, title, ok_msg, ko_msg):
-    dot = '<div class="dot ok">\u2713</div>' if ok else '<div class="dot ko">\u25CB</div>'
-    msg = ok_msg if ok else ko_msg
-    st.markdown(f'<div class="chk">{dot}<div><div class="t">{title}</div><div class="d">{msg}</div></div></div>',
-                unsafe_allow_html=True)
+    dot = '<div class="dot ok"></div>' if ok else '<div class="dot ko"></div>'
+    st.markdown(f'<div class="chk">{dot}<div><div class="t">{title}</div>'
+                f'<div class="d">{ok_msg if ok else ko_msg}</div></div></div>', unsafe_allow_html=True)
+
+
+from conversation import is_available, model_for
 
 c1, c2 = st.columns(2, gap="large")
 with c1:
     check(os.path.exists("asl_mediapipe_mlp_model.h5") and os.path.exists("labels.json"),
-          "Modele de lettres",
-          "Pret : la reconnaissance de l\'alphabet fonctionne.",
-          "Copie asl_mediapipe_mlp_model.h5 et labels.json ici (voir README).")
-    check(_dataset_base() is not None,
-          "Dataset d\'images (Asl_Sign_Data)",
-          "Trouve : Charte, Text to Sign et photos ameliorees disponibles.",
-          "Place le dossier Asl_Sign_Data a cote du projet pour les images.")
+          "Letter model", "Ready: alphabet recognition works.",
+          "Missing: put asl_mediapipe_mlp_model.h5 and labels.json in the app folder.")
     check(os.path.exists("sign_words_model.h5"),
-          "Modele de signes-mots",
-          "Pret : active la case Signes-mots dans la demo.",
-          "Lance download_signs_dataset.py puis le notebook 03 (voir README).")
-with c2:
+          "Word-sign model", f"Ready: {n_words} word signs. Turn on Word signs in the Sign to Text sidebar.",
+          "Missing: run download_signs_dataset.py, then notebook 03 (see README).")
+    check(_dataset_base() is not None,
+          "Sign photos (optional)",
+          "Found: real photos are used in the chart and Text to Sign.",
+          "Not installed: public-domain drawings are used instead." if uses_remote_images()
+          else "Not installed: images from assets/alphabet are used.")
     check(len(get_word_sign_gifs()) > 0,
-          "Animations des signes-mots",
-          "Pretes : visibles dans la Charte et Text to Sign.",
-          "Apres le telechargement, lance : python make_word_previews.py")
-    try:
-        from conversation import ollama_model
-        _oll = ollama_model()
-    except Exception:
-        _oll = None
-    check(_oll is not None,
-          "Ollama (conversation avancee)",
-          f"Detecte ({_oll}) : l\'agent l\'utilise automatiquement.",
-          "Optionnel : installe Ollama + un modele pour des reponses plus riches (sinon, regles locales).")
-    check(True, "Confidentialite",
-          "Toutes les images et donnees restent sur cette machine. Aucune API payante.",
-          "")
+          "Word-sign animations (optional)",
+          "Ready: shown in the chart and Text to Sign.",
+          "Not generated: words are fingerspelled instead. Run make_word_previews.py to add them.")
+with c2:
+    groq, gemini, ollama = is_available("groq"), is_available("gemini"), is_available("ollama")
+    check(groq, "Groq", f"Connected: {model_for('groq')}, with {model_for('groq_fast')} as backup.",
+          "Not configured: add GROQ_API_KEY to the app secrets.")
+    check(gemini, "Gemini", f"Connected: {model_for('gemini')}.",
+          "Not configured: add GEMINI_API_KEY to the app secrets.")
+    check(ollama, "Ollama (local AI)", f"Running: {model_for('ollama')}. Nothing leaves your machine.",
+          "Not running: optional, for a fully offline conversation.")
+    check(True, "Local rules", "Always on: the agent can still answer simple sentences without any AI.", "")
 
-st.caption("Projet de M2 \u2014 reconnaissance d\'epellation ASL et signes-mots. L\'epellation est un "
-           "sous-ensemble de la langue des signes : ce projet n\'en traduit pas la grammaire complete.")
+st.caption("Fingerspelling and a closed set of word signs are a subset of ASL: this project does not "
+           "translate the full grammar of the language.")
