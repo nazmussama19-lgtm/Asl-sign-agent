@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import streamlit as st
-from ui import inject_css, app_header, section, get_model, INK, COBALT, MUTED, LINE
+from ui import inject_css, app_header, section, get_model, INK, VIOLET, MUTED, LINE
 
 inject_css()
 app_header("Results", "How well the models recognize signs.")
@@ -62,7 +62,7 @@ order = np.argsort(f1)
 fig2, ax2 = plt.subplots(figsize=(10, 3.4))
 xs = range(len(order))
 ax2.vlines(xs, 0.9, [f1[i] for i in order], color=LINE, linewidth=2)
-ax2.scatter(xs, [f1[i] for i in order], color=COBALT, s=36, zorder=3)
+ax2.scatter(xs, [f1[i] for i in order], color=VIOLET, s=36, zorder=3)
 ax2.set_xticks(list(xs)); ax2.set_xticklabels([classes[i] for i in order], rotation=90)
 ax2.set_ylim(0.9, 1.005); ax2.set_ylabel("F1-score")
 ax2.spines[["top", "right"]].set_visible(False)

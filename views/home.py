@@ -15,7 +15,7 @@ st.markdown(f'''
   </div>
   <div class="demo-card">
     <div class="demo-step">What the camera reads</div>
-    {tiles_html("ILOVEU", done=6)}
+    {tiles_html("ILOVEU", done=5, now=5)}
     <div class="demo-step">What the agent understands</div>
     <div class="readout">I love you</div>
     <div class="demo-step">What it answers</div>

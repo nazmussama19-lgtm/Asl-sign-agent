@@ -4,11 +4,11 @@
 
 **A real-time AI agent that reads American Sign Language (fingerspelling and word signs), interprets it, talks back and speaks.**
 
-![Python](https://img.shields.io/badge/python-3.11-2446E0)
-![TensorFlow](https://img.shields.io/badge/TensorFlow-2.15-10204A)
-![Streamlit](https://img.shields.io/badge/Streamlit-1.45-10204A)
+![Python](https://img.shields.io/badge/python-3.11-6B5BFF)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-2.15-151833)
+![Streamlit](https://img.shields.io/badge/Streamlit-1.45-151833)
 [![CI](https://github.com/nazmussama19-lgtm/Asl-sign-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/nazmussama19-lgtm/Asl-sign-agent/actions/workflows/ci.yml)
-![License](https://img.shields.io/badge/license-MIT-2446E0)
+![License](https://img.shields.io/badge/license-MIT-6B5BFF)
 
 </div>
 

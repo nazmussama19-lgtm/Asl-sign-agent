@@ -76,7 +76,7 @@ les abréviations (U → you, BJR → bonjour…), détecte la langue et note ch
 
 Choisissez **Words** (par difficulté, mots anglais ou français) ou **Adaptive letters** (vos
 lettres faibles reviennent plus souvent), cliquez **Start a new challenge**, puis signez la
-lettre surlignée en jaune. Cadre vert = réussi, rouge = réessayez. La section *Your progress*
+lettre surlignée en cyan. Cadre vert = réussi, rouge = réessayez. La section *Your progress*
 montre votre taux de réussite par lettre et vos confusions les plus fréquentes.
 
 ### Text to Sign : la traduction inverse

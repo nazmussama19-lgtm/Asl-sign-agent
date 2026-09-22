@@ -70,7 +70,7 @@ Word suggestions appear while you spell: **thumbs up** accepts the first one.
 
 Pick **Words** (by difficulty, English or French words) or **Adaptive letters** (the letters you
 miss come back more often), click **Start a new challenge**, then sign the letter highlighted in
-yellow. Green frame = correct, red = try again. *Your progress* shows your success rate per letter
+cyan. Green frame = correct, red = try again. *Your progress* shows your success rate per letter
 and the letters you mix up most.
 
 ### Text to Sign: the other direction

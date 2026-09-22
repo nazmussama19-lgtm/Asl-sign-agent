@@ -22,7 +22,7 @@ except Exception:
 mp_hands = mp.solutions.hands
 mp_draw = mp.solutions.drawing_utils
 FONT = cv2.FONT_HERSHEY_SIMPLEX
-INK_BGR, COBALT_BGR, SIGNAL_BGR = (74, 32, 16), (224, 70, 36), (63, 210, 255)
+INK_BGR, VIOLET_BGR, CYAN_BGR = (51, 24, 21), (255, 91, 107), (196, 184, 18)
 OK_BGR, ERR_BGR = (79, 123, 15), (53, 35, 180)
 
 
@@ -57,7 +57,7 @@ class PracticeProcessor(VideoProcessorBase):
         s = self.engine.snapshot()
         h, w, _ = img.shape
         if s["active"] and s["word"] and not s["completed"]:
-            put_label(img, "Sign:  " + s["word"][s["idx"]], (20, 46), 1.1, INK_BGR, 2, SIGNAL_BGR)
+            put_label(img, "Sign:  " + s["word"][s["idx"]], (20, 46), 1.1, INK_BGR, 2, CYAN_BGR)
         ev = s["last_event"]
         if ev and time.time() - ev[2] < 1.0:
             cv2.rectangle(img, (0, 0), (w - 1, h - 1), OK_BGR if ev[0] == "ok" else ERR_BGR, 10)
@@ -101,7 +101,7 @@ with col_g:
 
         mins, secs = divmod(int(s["elapsed"]), 60)
         score = (f'<div class="score"><div><b>{s["score"]}</b>points</div>'
-                 f'<div><b>{s["streak"]}</b>streak</div>'
+                 f'<div class="hot"><b>{s["streak"]}</b>streak</div>'
                  f'<div><b>{s["words"]}</b>words</div>'
                  f'<div><b>{s["lpm"]:.0f}</b>letters / min</div>'
                  f'<div><b>{mins}:{secs:02d}</b>time</div></div>')

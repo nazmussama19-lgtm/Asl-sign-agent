@@ -1,121 +1,128 @@
-"""Shared UI: visual identity, spelled-letter tiles, cached models and sign images."""
+"""Shared UI: visual identity, letter tiles, cached models and sign images."""
 import os, glob, string, html
 import json
 import streamlit as st
 
-# ---------------- Visual identity ----------------
-# Deaf-awareness blue for actions, a highlighter yellow for "the letter being read right now",
-# navy ink on cool paper. One typeface family designed for legibility (Braille Institute).
-INK = "#10204A"
-COBALT = "#2446E0"
-SIGNAL = "#FFD23F"
-PAPER = "#FAFBFD"
-MIST = "#EEF2F8"
-MUTED = "#56607A"
-LINE = "#D5DCE8"
+# ---------------- Visual identity: "Arena", light ----------------
+# Violet for what is done and for actions, cyan for "the letter being read right now",
+# a sharp display face (Chakra Petch) for titles, tiles and scores, Manrope for reading.
+INK = "#151833"
+VIOLET = "#6B5BFF"
+CYAN = "#12B8C4"
+CYAN_INK = "#0A7780"
+CYAN_TINT = "#E3F9FA"
+PAPER = "#F5F6FB"
+MIST = "#ECEEF8"
+MUTED = "#636985"
+LINE = "#E0E3F0"
+DISPLAY = "'Chakra Petch', system-ui, sans-serif !important"
+
 
 def inject_css():
     st.markdown(f'''
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@500;700&family=Atkinson+Hyperlegible+Next:wght@400;500;700;800&display=swap');
-    html, body, .stApp, .stMarkdown, .stButton button, label, input, textarea, select,
-    [data-baseweb="select"], [data-testid="stMetricValue"], [data-testid="stCaptionContainer"] {{
-        font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif; }}
-    h1, h2, h3, h4 {{ font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif !important;
-        color:{INK}; letter-spacing:-0.015em; }}
+    @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
+    .stApp *:not([data-testid="stIconMaterial"]):not(code):not(pre):not(pre *) {{
+        font-family: 'Manrope', system-ui, sans-serif; }}
+    h1, h2, h3, h4, h1 *, h2 *, h3 * {{ font-family: {DISPLAY}; color:{INK}; letter-spacing:-0.01em; }}
     #MainMenu, footer, [data-testid="stToolbar"] {{ visibility:hidden; }}
     [data-testid="stSidebarCollapsedControl"], [data-testid="collapsedControl"] {{ visibility:visible !important; }}
     .block-container {{ padding-top:2.4rem; padding-bottom:4rem; max-width:1120px; }}
-    section[data-testid="stSidebar"] {{ background:{MIST}; border-right:1px solid {LINE}; }}
-    a {{ color:{COBALT}; }}
-    .stButton > button {{ border-radius:10px; font-weight:700; }}
-    :focus-visible {{ outline:3px solid {COBALT} !important; outline-offset:2px; }}
+    section[data-testid="stSidebar"] {{ background:#fff; border-right:1px solid {LINE}; }}
+    section[data-testid="stSidebar"] h3 {{ font-size:1rem; }}
+    a {{ color:{VIOLET}; }}
+    .stButton > button, .stDownloadButton > button {{ border-radius:8px; font-weight:600; }}
+    :focus-visible {{ outline:2px solid {VIOLET} !important; outline-offset:2px; }}
+    .stMain [data-testid="stPageLink"] p {{ font-weight:600; color:{INK}; font-size:1.02rem; }}
+    .stMain [data-testid="stPageLink"] [data-testid="stIconMaterial"] {{ color:{VIOLET}; }}
+    [data-testid="stMetricValue"], [data-testid="stMetricValue"] * {{ font-family:{DISPLAY}; font-weight:600; color:{INK}; }}
 
     /* page header */
-    .stMarkdown h1.asl-title {{ font-size:2.35rem; line-height:1.1; font-weight:800; margin:0 0 .45rem 0; padding:0; color:{INK}; }}
-    .asl-sub {{ color:{MUTED}; font-size:1.08rem; line-height:1.5; margin:0 0 1.8rem 0; max-width:62ch; }}
-    .stMarkdown h2.asl-h2 {{ font-size:1.5rem; line-height:1.2; font-weight:800; color:{INK}; margin:2.6rem 0 .3rem 0; padding:0; }}
-    .stMarkdown h3.asl-h3 {{ font-size:1.05rem; line-height:1.3; font-weight:700; color:{INK}; margin:0 0 .5rem 0; padding:0; }}
+    .stMarkdown h1.asl-title {{ font-size:2.4rem; line-height:1.1; font-weight:700; margin:0 0 .45rem 0; padding:0; color:{INK}; }}
+    .asl-sub {{ color:{MUTED}; font-size:1.05rem; line-height:1.55; margin:0 0 1.8rem 0; max-width:62ch; }}
+    .stMarkdown h2.asl-h2 {{ font-size:1.5rem; line-height:1.2; font-weight:700; color:{INK}; margin:2.6rem 0 .3rem 0; padding:0; }}
+    .stMarkdown h3.asl-h3 {{ font-size:1.05rem; line-height:1.3; font-weight:600; color:{INK}; margin:0 0 .5rem 0; padding:0; }}
 
-    /* spelled-letter tiles: the signature element, one tile per fingerspelled letter */
+    /* letter tiles: done = violet, now = cyan, next = empty slot */
     .tiles {{ display:flex; flex-wrap:wrap; gap:.4rem; align-items:center; }}
-    .tile {{ font-family:'Atkinson Hyperlegible Mono', ui-monospace, monospace; font-weight:700;
-        display:inline-flex; align-items:center; justify-content:center; border-radius:8px;
-        width:2.6rem; height:2.9rem; font-size:1.45rem; background:#fff; color:{INK};
-        border:1.5px solid {LINE}; }}
-    .tiles.lg .tile {{ width:4.4rem; height:5rem; font-size:2.7rem; border-radius:12px; border-width:2px; }}
-    .tiles.sm .tile {{ width:1.9rem; height:2.2rem; font-size:1.05rem; border-radius:6px; }}
-    .tile.done {{ background:{COBALT}; border-color:{COBALT}; color:#fff; }}
-    .tile.now {{ background:{SIGNAL}; border-color:{INK}; color:{INK}; }}
-    .tile.gap {{ width:.9rem; border:none; background:transparent; }}
+    .tile {{ font-family:{DISPLAY}; font-weight:600; display:inline-flex; align-items:center; justify-content:center;
+        border-radius:7px; width:2.6rem; height:3rem; font-size:1.4rem; background:#fff; color:#A3A8C3;
+        border:1px solid {LINE}; }}
+    .tiles.lg .tile {{ width:4.3rem; height:5rem; font-size:2.5rem; border-radius:10px; }}
+    .tiles.sm .tile {{ width:1.9rem; height:2.25rem; font-size:1rem; border-radius:6px; }}
+    .tile.done {{ background:{VIOLET}; border-color:{VIOLET}; color:#fff; }}
+    .tile.now {{ background:{CYAN_TINT}; border:2px solid {CYAN}; color:{CYAN_INK}; }}
+    .tile.gap {{ width:.8rem; border:none; background:transparent; }}
     .tile.word {{ width:auto; padding:0 .8rem; font-size:1rem; }}
     .tiles.sm .tile.word {{ font-size:.85rem; padding:0 .55rem; }}
 
     /* reading panels */
-    .panel {{ background:#fff; border:1.5px solid {LINE}; border-radius:12px; padding:1.1rem 1.2rem; }}
-    .panel-label {{ font-size:.92rem; font-weight:700; color:{MUTED}; margin:0 0 .45rem 0; }}
-    .readout {{ font-size:1.55rem; font-weight:700; color:{INK}; min-height:2.1rem; word-break:break-word; }}
-    .readout.empty {{ color:#A7B0C4; font-weight:500; }}
-    .engine {{ color:{MUTED}; font-size:.82rem; margin:-.35rem 0 .6rem 3.1rem; }}
+    .panel {{ background:#fff; border:1px solid {LINE}; border-radius:12px; padding:1.1rem 1.2rem; }}
+    .panel-label {{ font-size:.9rem; font-weight:600; color:{MUTED}; margin:0 0 .45rem 0; }}
+    .readout {{ font-family:{DISPLAY}; font-size:1.6rem; font-weight:600; color:{INK}; min-height:2.1rem; word-break:break-word; }}
+    .readout.empty {{ color:#B3B8D0; font-weight:500; }}
 
     /* home */
     .hero {{ display:grid; grid-template-columns: minmax(0,1.15fr) minmax(0,1fr); gap:2.6rem;
-        align-items:center; padding:1.2rem 0 2.2rem 0; border-bottom:1.5px solid {LINE}; }}
-    .stMarkdown .hero h1 {{ font-size:3.1rem; padding:0; line-height:1.03; font-weight:800; margin:0 0 1rem 0; color:{INK}; }}
-    .hero p {{ font-size:1.14rem; line-height:1.55; color:{MUTED}; margin:0; max-width:46ch; }}
-    .demo-card {{ background:{MIST}; border-radius:16px; padding:1.5rem; }}
-    .demo-step {{ font-size:.9rem; color:{MUTED}; margin:1rem 0 .4rem 0; }}
+        align-items:center; padding:1.2rem 0 2.2rem 0; border-bottom:1px solid {LINE}; }}
+    .stMarkdown .hero h1 {{ font-size:3.2rem; padding:0; line-height:1.02; font-weight:700; margin:0 0 1rem 0; color:{INK}; }}
+    .hero p {{ font-size:1.1rem; line-height:1.6; color:{MUTED}; margin:0; max-width:46ch; }}
+    .demo-card {{ background:#fff; border:1px solid {LINE}; border-radius:16px; padding:1.5rem; }}
+    .demo-step {{ font-size:.88rem; color:{MUTED}; margin:1.1rem 0 .45rem 0; }}
     .demo-step:first-child {{ margin-top:0; }}
-    .bubble {{ background:#fff; border:1.5px solid {LINE}; border-radius:14px 14px 14px 4px;
-        padding:.7rem 1rem; font-size:1.05rem; color:{INK}; display:inline-block; }}
+    .bubble {{ background:{MIST}; border-radius:12px 12px 12px 4px; padding:.7rem 1rem; font-size:1.02rem;
+        color:{INK}; display:inline-block; }}
     .steps {{ list-style:none; counter-reset:s; display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
         gap:1.4rem 2rem; padding:0; margin:1rem 0 0 0; }}
-    .steps li {{ counter-increment:s; position:relative; padding-left:2.4rem; color:{MUTED}; line-height:1.45; }}
-    .steps li::before {{ content:counter(s); position:absolute; left:0; top:-.1rem; width:1.7rem; height:1.9rem;
-        border-radius:6px; background:{INK}; color:#fff; font-family:'Atkinson Hyperlegible Mono', monospace;
-        font-weight:700; display:flex; align-items:center; justify-content:center; font-size:.95rem; }}
-    .steps b {{ color:{INK}; display:block; }}
-    .facts {{ display:flex; flex-wrap:wrap; gap:.5rem 2.2rem; margin:1.6rem 0 0 0; color:{MUTED}; }}
-    .facts b {{ color:{INK}; font-size:1.25rem; margin-right:.3rem; }}
+    .steps li {{ counter-increment:s; position:relative; padding-left:2.5rem; color:{MUTED}; line-height:1.5; }}
+    .steps li::before {{ content:counter(s); position:absolute; left:0; top:-.05rem; width:1.75rem; height:2rem;
+        border-radius:6px; background:{MIST}; color:{VIOLET}; font-family:{DISPLAY}; font-weight:700;
+        display:flex; align-items:center; justify-content:center; font-size:1rem; }}
+    .steps b {{ color:{INK}; display:block; font-weight:600; }}
+    .facts {{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1rem; margin:1.8rem 0 0 0; }}
+    .facts span {{ color:{MUTED}; font-size:.9rem; line-height:1.4; border-left:2px solid {VIOLET}; padding-left:.8rem; }}
+    .facts b {{ display:block; font-family:{DISPLAY}; color:{INK}; font-size:1.7rem; font-weight:600; line-height:1.15; }}
     .chk {{ display:flex; gap:.75rem; padding:.55rem 0; }}
-    .chk .dot {{ width:1.25rem; height:1.25rem; border-radius:50%; flex:0 0 1.25rem; margin-top:.15rem; }}
-    .chk .ok {{ background:{COBALT}; }}
-    .chk .ko {{ border:2px solid #B4BDD0; }}
-    .chk .t {{ font-weight:700; color:{INK}; }}
+    .chk .dot {{ width:1.1rem; height:1.1rem; border-radius:4px; flex:0 0 1.1rem; margin-top:.2rem; }}
+    .chk .ok {{ background:{VIOLET}; }}
+    .chk .ko {{ border:2px solid #C3C7DA; }}
+    .chk .t {{ font-weight:600; color:{INK}; }}
     .chk .d {{ color:{MUTED}; font-size:.92rem; }}
 
     /* practice */
-    .score {{ display:flex; flex-wrap:wrap; gap:.6rem 2rem; margin:0 0 1.1rem 0; }}
-    .score div {{ color:{MUTED}; font-size:.9rem; }}
-    .score b {{ display:block; color:{INK}; font-size:1.7rem; line-height:1.15; }}
-    .feed {{ font-weight:700; min-height:1.6rem; margin-top:.9rem; }}
-    .feed.ok {{ color:#0F7B4F; }} .feed.err {{ color:#B42335; }}
-    .rate {{ display:flex; align-items:center; gap:.8rem; margin:.25rem 0; }}
-    .rate .l {{ width:1.6rem; font-family:'Atkinson Hyperlegible Mono', monospace; font-weight:700; color:{INK}; }}
-    .rate .bar {{ flex:1; background:{MIST}; border-radius:4px; height:.7rem; overflow:hidden; }}
-    .rate .bar div {{ height:100%; background:{COBALT}; }}
+    .score {{ display:flex; flex-wrap:wrap; gap:.6rem 2rem; margin:0 0 1.2rem 0; }}
+    .score div {{ color:{MUTED}; font-size:.85rem; }}
+    .score b {{ display:block; font-family:{DISPLAY}; color:{INK}; font-size:1.8rem; font-weight:600; line-height:1.1; }}
+    .score div.hot b {{ color:{CYAN}; }}
+    .feed {{ font-weight:600; min-height:1.6rem; margin-top:1rem; }}
+    .feed.ok {{ color:#0E8A5F; }} .feed.err {{ color:#C0304A; }}
+    .rate {{ display:flex; align-items:center; gap:.8rem; margin:.3rem 0; }}
+    .rate .l {{ width:1.6rem; font-family:{DISPLAY}; font-weight:600; color:{INK}; }}
+    .rate .bar {{ flex:1; background:{MIST}; border-radius:3px; height:.6rem; overflow:hidden; }}
+    .rate .bar div {{ height:100%; background:{VIOLET}; }}
     .rate .n {{ width:8.5rem; color:{MUTED}; font-size:.85rem; }}
 
+    /* text to sign */
     .stage {{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.6rem;
         height:360px; margin-bottom:.8rem; }}
     .stage img {{ max-height:290px; max-width:100%; object-fit:contain; }}
     .stage .cap {{ color:{MUTED}; font-size:.95rem; }}
-    [data-testid="stMetricValue"] {{ font-weight:800; color:{INK}; }}
 
     /* chart */
     .sign-grid {{ display:grid; grid-template-columns:repeat(auto-fill, minmax(118px, 1fr)); gap:.8rem; }}
-    .sign-card {{ background:#fff; border:1.5px solid {LINE}; border-radius:12px; padding:.7rem .6rem .55rem;
+    .sign-card {{ background:#fff; border:1px solid {LINE}; border-radius:12px; padding:.7rem .6rem .55rem;
         display:flex; flex-direction:column; align-items:center; gap:.35rem; }}
     .sign-card img {{ height:118px; max-width:100%; object-fit:contain; }}
     .sign-card .row {{ display:flex; justify-content:space-between; align-items:center; width:100%; }}
-    .sign-card .k {{ font-family:'Atkinson Hyperlegible Mono', monospace; font-weight:700; font-size:1.25rem; color:{INK}; }}
+    .sign-card .k {{ font-family:{DISPLAY}; font-weight:700; font-size:1.3rem; color:{INK}; }}
     .sign-card a {{ font-size:.85rem; }}
 
     @media (max-width: 760px) {{
         .hero {{ grid-template-columns:1fr; gap:1.6rem; }}
-        .stMarkdown .hero h1 {{ font-size:2.2rem; }}
+        .stMarkdown .hero h1 {{ font-size:2.3rem; }}
         .steps {{ grid-template-columns:1fr; }}
-        .tiles.lg .tile {{ width:3.2rem; height:3.7rem; font-size:2rem; }}
+        .facts {{ grid-template-columns:repeat(2,minmax(0,1fr)); }}
+        .tiles.lg .tile {{ width:3.2rem; height:3.8rem; font-size:1.9rem; }}
     }}
     </style>
     ''', unsafe_allow_html=True)

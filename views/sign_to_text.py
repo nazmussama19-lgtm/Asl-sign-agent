@@ -19,8 +19,8 @@ app_header("Sign to Text", "Sign in front of the camera. The agent builds the te
            "after a pause, and answers you.")
 
 DASH = "—"
-# video overlay colors (BGR): navy ink, cobalt, highlighter yellow
-INK_BGR, COBALT_BGR, SIGNAL_BGR = (74, 32, 16), (224, 70, 36), (63, 210, 255)
+# video overlay colors (BGR): ink, violet, cyan
+INK_BGR, VIOLET_BGR, CYAN_BGR = (51, 24, 21), (255, 91, 107), (196, 184, 18)
 
 
 def speak_in_browser(text, lang):
@@ -237,27 +237,27 @@ class ASLProcessor(VideoProcessorBase):
         self.agent.observe(sentence, hand is not None)
 
         if moving:
-            put_label(img, "MOTION (J/Z)", (15, 34), 0.7, INK_BGR, 2, SIGNAL_BGR)
+            put_label(img, "MOTION (J/Z)", (15, 34), 0.7, INK_BGR, 2, CYAN_BGR)
         elif pred is not None and conf_ >= 0.80:
-            put_label(img, f"{top_label}  {conf_*100:.0f}%", (15, 34), 0.7, (255, 255, 255), 2, COBALT_BGR)
+            put_label(img, f"{top_label}  {conf_*100:.0f}%", (15, 34), 0.7, (255, 255, 255), 2, VIOLET_BGR)
         if pred is not None and not moving:
             top3 = np.argsort(pred)[::-1][:3]
             for i, ci in enumerate(top3):
                 yb = 62 + i * 30
                 put_label(img, str(self.labels[ci]), (15, yb + 18), 0.6)
-                draw_bar(img, 70, yb, 180, 20, float(pred[ci]), COBALT_BGR)
+                draw_bar(img, 70, yb, 180, 20, float(pred[ci]), VIOLET_BGR)
                 put_label(img, f"{pred[ci]*100:3.0f}%", (260, yb + 18), 0.55)
         h, w, _ = img.shape
 
         if self.word_flash and time.time() - self.word_flash[1] < 1.6:
             put_label(img, "Word sign: " + str(self.word_flash[0]).upper(), (w - 380, 34), 0.75,
-                      INK_BGR, 2, SIGNAL_BGR)
+                      INK_BGR, 2, CYAN_BGR)
         if self.custom_record is not None:
             put_label(img, f"Recording '{self.custom_record[0]}': do the gesture ({self.custom_record[1]} left)",
-                      (20, h - 80), 0.6, INK_BGR, 2, SIGNAL_BGR)
+                      (20, h - 80), 0.6, INK_BGR, 2, CYAN_BGR)
         if self.personal_capture is not None:
             put_label(img, f"Hold the letter {self.personal_capture[0]} ({self.personal_capture[1]} examples left)",
-                      (20, h - 80), 0.6, INK_BGR, 2, SIGNAL_BGR)
+                      (20, h - 80), 0.6, INK_BGR, 2, CYAN_BGR)
 
         # current suggestion + acceptance gesture
         sugg_now = self.agent.get_suggestions()
@@ -266,7 +266,7 @@ class ASLProcessor(VideoProcessorBase):
         if self.accept_flash:
             word, t0 = self.accept_flash
             if time.time() - t0 < 1.5:
-                put_label(img, "Accepted: " + word, (w - 300, 68), 0.65, (255, 255, 255), 2, COBALT_BGR)
+                put_label(img, "Accepted: " + word, (w - 300, 68), 0.65, (255, 255, 255), 2, VIOLET_BGR)
             else:
                 self.accept_flash = None
 
