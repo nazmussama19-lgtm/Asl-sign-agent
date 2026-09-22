@@ -9,7 +9,7 @@ word signs, an autonomous interpreting agent, and a spoken conversation with an 
 
 ## 1. Use the online version
 
-Open the app link (see the README). Nothing to install: allow the camera when your browser asks.
+Open [sign-agent.streamlit.app](https://sign-agent.streamlit.app/). Nothing to install: allow the camera when your browser asks.
 The **Home** page shows what is active on this deployment (models, conversation AI, photos).
 
 ## 2. Run it locally (optional)

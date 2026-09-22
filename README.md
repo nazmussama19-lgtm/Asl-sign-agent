@@ -4,6 +4,7 @@
 
 **A real-time AI agent that reads American Sign Language (fingerspelling and word signs), interprets it, talks back and speaks.**
 
+[![Live demo](https://img.shields.io/badge/live%20demo-sign--agent.streamlit.app-6B5BFF)](https://sign-agent.streamlit.app/)
 ![Python](https://img.shields.io/badge/python-3.11-6B5BFF)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.15-151833)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.45-151833)
@@ -64,7 +65,7 @@ The word-sign model is trained on the [Google ASL Signs](https://www.kaggle.com/
 
 ## Try it online
 
-The app runs on Streamlit Community Cloud: open the link, click **Start** under the video and allow your camera.
+**[sign-agent.streamlit.app](https://sign-agent.streamlit.app/)**: click **Start** under the video and allow your camera. The app may take a minute to wake up if nobody has used it recently.
 
 ## Run it locally
 

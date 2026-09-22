@@ -11,7 +11,7 @@ tels qu'ils apparaissent à l'écran.
 
 ## 1. Utiliser la version en ligne
 
-Ouvrez le lien de l'application (voir le README). Rien à installer : autorisez la caméra
+Ouvrez [sign-agent.streamlit.app](https://sign-agent.streamlit.app/). Rien à installer : autorisez la caméra
 quand le navigateur le demande. La page **Home** indique ce qui est actif sur ce déploiement
 (modèles, IA de conversation, photos).
 
