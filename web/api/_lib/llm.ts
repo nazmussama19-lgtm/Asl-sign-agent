@@ -56,7 +56,12 @@ async function post(url: string, key: string, payload: Record<string, unknown>) 
     body: JSON.stringify(payload),
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });
-  if (!res.ok) throw Object.assign(new Error(`HTTP ${res.status}`), { status: res.status });
+  if (!res.ok) {
+    // Visible in the Vercel function logs; the provider's message says why (model name, quota...). Keys are never logged.
+    const detail = (await res.text().catch(() => "")).slice(0, 300);
+    console.error(`[llm] ${new URL(url).host} ${payload.model} -> HTTP ${res.status}: ${detail}`);
+    throw Object.assign(new Error(`HTTP ${res.status}`), { status: res.status });
+  }
   const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
   return (data.choices?.[0]?.message?.content ?? "").trim();
 }
