@@ -183,6 +183,18 @@ def get_model():
     return tf.keras.models.load_model("asl_mediapipe_mlp_model.h5")
 
 
+def predict_one(model, x):
+    """Probabilities for a single sample. Calling the model directly skips the batching machinery of
+    model.predict(), which is several times slower for one frame at a time."""
+    return model(x, training=False).numpy()[0]
+
+
+# Webcam stream: 640x480 at 15 fps is plenty for hand landmarks and keeps the upload and the
+# server-side processing light on a small cloud machine.
+CAMERA = {"video": {"width": {"ideal": 640}, "height": {"ideal": 480},
+                    "frameRate": {"ideal": 15, "max": 20}}, "audio": False}
+
+
 @st.cache_data(show_spinner=False)
 def get_labels():
     with open("labels.json") as f:

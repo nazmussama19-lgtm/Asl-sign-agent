@@ -1,7 +1,7 @@
 import os, time
 import numpy as np
 import streamlit as st
-from ui import inject_css, app_header, section, tiles_html, rtc_config, camera_help, get_model, get_labels
+from ui import inject_css, app_header, section, tiles_html, rtc_config, camera_help, get_model, get_labels, predict_one, CAMERA
 from asl_core import normalize_landmarks
 from practice import PracticeEngine, pick_word, load_stats, reset_stats
 
@@ -50,7 +50,7 @@ class PracticeProcessor(VideoProcessorBase):
             mp_draw.draw_landmarks(img, hl, mp_hands.HAND_CONNECTIONS)
             coords = np.array([[p.x, p.y, p.z] for p in hl.landmark], dtype=np.float32)
             feats = normalize_landmarks(coords)
-            pred = self.model.predict(feats.reshape(1, -1), verbose=0)[0]
+            pred = predict_one(self.model, feats.reshape(1, -1))
             i = int(np.argmax(pred)); conf = float(pred[i]); label = self.labels[i]
         self.engine.update(label, conf, feats)
 
@@ -78,7 +78,7 @@ col_v, col_g = st.columns([1.05, 1], gap="large")
 with col_v:
     ctx = webrtc_streamer(key="asl-practice", video_processor_factory=PracticeProcessor,
                           rtc_configuration=rtc_config(),
-                          media_stream_constraints={"video": True, "audio": False})
+                          media_stream_constraints=CAMERA)
     st.caption("Sign the highlighted letter. A green frame means correct, red means try again.")
     camera_help()
 

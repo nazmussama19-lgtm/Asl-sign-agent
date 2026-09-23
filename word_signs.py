@@ -124,7 +124,7 @@ class WordSignRecognizer:
         if self.model is None:
             return None, 0.0
         x = resample_sequence(frames)[None, ...]
-        pred = self.model.predict(x, verbose=0)[0]
+        pred = self.model(x, training=False).numpy()[0]   # direct call: much faster than predict() for one sample
         i = int(np.argmax(pred)); conf = float(pred[i])
         if conf >= threshold:
             return self.labels[i], conf

@@ -4,7 +4,7 @@ import time
 import numpy as np
 import streamlit as st
 from ui import (inject_css, app_header, section, tiles_html, rtc_config, camera_help,
-                get_model, get_labels, find_sign_images, get_word_sign_gifs)
+                get_model, get_labels, find_sign_images, get_word_sign_gifs, predict_one, CAMERA)
 from asl_core import normalize_landmarks, SentenceBuilder, DynamicDetector, is_thumbs_up
 from agent import InterpretingAgent
 from conversation import (respond, compare, detect_lang, available_providers, is_available,
@@ -173,7 +173,7 @@ class ASLProcessor(VideoProcessorBase):
             mp_draw.draw_landmarks(img, hand, mp_hands.HAND_CONNECTIONS)
             coords = np.array([[p.x, p.y, p.z] for p in hand.landmark], dtype=np.float32)
             feats63 = normalize_landmarks(coords)
-            pred = self.model.predict(feats63.reshape(1, -1), verbose=0)[0]
+            pred = predict_one(self.model, feats63.reshape(1, -1))
             idx = int(np.argmax(pred)); conf_ = float(pred[idx]); top_label = self.labels[idx]
             # few-shot personalization: a close personal example wins
             if self.personal_enabled:
@@ -281,7 +281,7 @@ with col_v:
         key="asl-demo",
         video_processor_factory=ASLProcessor,
         rtc_configuration=rtc_config(),
-        media_stream_constraints={"video": True, "audio": False},
+        media_stream_constraints=CAMERA,
     )
     if auto_on:
         st.caption(f"Lower your hand for about {pause_s:.0f} s and the agent interprets the sentence. "
