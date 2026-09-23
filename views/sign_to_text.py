@@ -73,8 +73,7 @@ cooldown = st.sidebar.slider("Repeat delay (s)", 0.2, 1.5, 0.6, 0.1,
 dyn_on = st.sidebar.checkbox("Detect J and Z (motion)", value=True)
 move_sens = st.sidebar.slider("Motion sensitivity", 0.05, 0.30, 0.12, 0.01)
 words_on = st.sidebar.checkbox("Word signs", value=False,
-    help="Recognize whole words signed with one gesture (sequence model + your custom signs). "
-         "When off, only letters are read.")
+    help="Recognize the 9 whole words signed with one movement (plus your custom signs). Make the movement, then hold still: the word is written. Letters pause while you move. J and Z detection is not needed.")
 personal_on = st.sidebar.checkbox("Use my letter examples", value=True,
     help="Your recorded examples override the model for the letters you taught it.")
 
@@ -186,8 +185,11 @@ class ASLProcessor(VideoProcessorBase):
                     self.personal.add(letter, feats63.flatten())
                     remaining -= 1
                     self.personal_capture = (letter, remaining, time.time() + 0.6) if remaining > 0 else None
-            if self.dyn_enabled:
+            # Motion tracking serves J/Z and word signs; J/Z letters are only written when J/Z detection is on
+            if self.dyn_enabled or self.words_enabled:
                 moving, dyn_letter = self.detector.update(coords, top_label if conf_ >= 0.6 else None)
+            if not self.dyn_enabled:
+                dyn_letter = None
 
         # thumbs up: accept the first suggestion
         thumbs = hand is not None and is_thumbs_up(coords)
@@ -206,7 +208,7 @@ class ASLProcessor(VideoProcessorBase):
         if self.dyn_enabled and top_label in ("J", "Z"):
             commit_label = "nothing"
 
-        if self.dyn_enabled and moving:
+        if (self.dyn_enabled or self.words_enabled) and moving:
             self.builder.update("nothing", 0.0)
         else:
             self.builder.update(commit_label, conf_)

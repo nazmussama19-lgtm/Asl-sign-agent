@@ -65,7 +65,9 @@ export class Recognizer {
         const remaining = this.personalCapture.remaining - 1;
         this.personalCapture = remaining > 0 ? { ...this.personalCapture, remaining, next: now() + 0.6 } : null;
       }
-      if (this.dynEnabled) ({ moving, letter: dynLetter } = this.detector.update(hand.landmarks, conf >= 0.6 ? label : null));
+      // Motion tracking serves J/Z and word signs; J/Z letters are only written when J/Z detection is on
+      if (this.dynEnabled || this.wordsEnabled) ({ moving, letter: dynLetter } = this.detector.update(hand.landmarks, conf >= 0.6 ? label : null));
+      if (!this.dynEnabled) dynLetter = null;
     }
 
     // Thumbs up: accept the first suggestion
@@ -83,7 +85,7 @@ export class Recognizer {
 
     let commitLabel = label;
     if (thumbs || (this.dynEnabled && (label === "J" || label === "Z"))) commitLabel = "nothing";
-    if (this.dynEnabled && moving) this.builder.update("nothing", 0);
+    if ((this.dynEnabled || this.wordsEnabled) && moving) this.builder.update("nothing", 0);   // no letters mid-gesture
     else this.builder.update(commitLabel, conf);
 
     if (this.wordsEnabled) {

@@ -121,7 +121,7 @@ export default function SignToText() {
         ))}
       </div>
     ) : null,
-    view.moving ? <span key="m" className="chip">Motion (J/Z)</span> : null,
+    view.moving ? <span key="m" className="chip">{words ? "Reading a word sign…" : "Motion (J/Z)"}</span> : null,
     view.flash ? <span key="f" className="chip">{view.flash}</span> : null,
     agentView.suggestions[0] && view.handPresent ? <span key="s" className="chip">Thumbs up = {agentView.suggestions[0]}</span> : null,
     view.capture ? <span key="c" className="chip dark">{view.capture}</span> : null,
@@ -139,7 +139,8 @@ export default function SignToText() {
         <div className="stack">
           <Camera numHands={words ? 2 : 1} onHands={onHands} overlay={chips} caption={raw.slice(-40) || " "} />
           <p className="muted">{auto ? `Lower your hand for about ${pause} s and the agent interprets the sentence. Thumbs up accepts the suggested word.`
-            : "Automatic interpretation is off: click Interpret when you are done."}</p>
+            : "Automatic interpretation is off: click Interpret when you are done."}{" "}
+            {words ? "Word signs are on: make the movement, then hold still." : "To sign whole words (hello, food, home…), turn on Word signs in Settings."}</p>
         </div>
 
         <div className="stack">
@@ -259,9 +260,10 @@ export default function SignToText() {
               <Slider label="Confidence threshold" hint="A letter is only accepted above this confidence." value={conf} min={0.5} max={0.99} step={0.01} onChange={setConf} />
               <Slider label="Stability (frames)" hint="Frames that must agree before a letter is written." value={stab} min={2} max={8} step={1} onChange={setStab} />
               <Slider label="Repeat delay (s)" hint="Minimum time between two letters." value={cooldown} min={0.2} max={1.5} step={0.1} onChange={setCooldown} />
-              <Check label="Detect J and Z (motion)" value={dyn} onChange={setDyn} />
+              <Check label="Detect J and Z (motion)" value={dyn} onChange={setDyn} hint="J and Z are movements: turn this on to spell them." />
               <Slider label="Motion sensitivity" value={moveSens} min={0.05} max={0.3} step={0.01} onChange={setMoveSens} />
-              <Check label="Word signs (9 whole words in this demo)" value={words} onChange={setWords} />
+              <Check label="Word signs (9 whole words in this demo)" value={words} onChange={setWords}
+                hint="Sign hello, food, home… with one movement, then hold still: the word is written. J and Z detection is not needed." />
               <Check label="Use my letter examples" value={personalOn} onChange={setPersonalOn} />
               <h3>Agent</h3>
               <Check label="Interpret automatically" value={auto} onChange={setAuto} />
@@ -303,10 +305,13 @@ function Slider({ label, hint, value, min, max, step, onChange }: { label: strin
   );
 }
 
-function Check({ label, value, onChange, disabled }: { label: string; value: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
+function Check({ label, value, onChange, disabled, hint }: { label: string; value: boolean; onChange: (v: boolean) => void; disabled?: boolean; hint?: string }) {
   return (
-    <label className="check" style={disabled ? { opacity: 0.5 } : undefined}>
-      <input type="checkbox" checked={value} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />{label}
-    </label>
+    <div className="field">
+      <label className="check" style={disabled ? { opacity: 0.5 } : undefined}>
+        <input type="checkbox" checked={value} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />{label}
+      </label>
+      {hint && <span className="hint" style={{ paddingLeft: 27 }}>{hint}</span>}
+    </div>
   );
 }

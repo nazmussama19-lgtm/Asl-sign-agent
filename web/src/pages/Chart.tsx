@@ -17,7 +17,7 @@ export default function Chart() {
       <p className="muted" style={{ marginTop: 14 }}>Drawings: public domain, from Wikimedia Commons (wpclipart.com). J and Z are movements: the drawing shows the starting pose.</p>
 
       <h2 className="section-title">Word signs</h2>
-      <p className="section-sub">This demo recognizes 9 word signs, a lighter set that keeps it fast (the model was evaluated on 24). Watch real people sign each word, then turn on Word signs in the Sign to text settings to try it.</p>
+      <p className="section-sub">This demo recognizes 9 word signs, a lighter set that keeps it fast (the model was evaluated on 24). Watch real people sign each word. To try one live, turn on Word signs in the Sign to text settings, make the movement, then hold still.</p>
       <div className="sign-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))" }}>
         {WORD_SIGNS.map((w) => (
           <div key={w} className="sign-card"><WordFace word={w} /></div>
