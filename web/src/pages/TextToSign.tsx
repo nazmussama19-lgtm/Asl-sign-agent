@@ -75,7 +75,7 @@ export default function TextToSign() {
         }
         ctx.fillStyle = "#0E1330"; ctx.fillRect(0, 320, W, 32);
         ctx.fillStyle = "#fff"; ctx.font = "600 16px 'DM Sans', sans-serif";
-        ctx.fillText(it.type === "letter" ? it.ch : "Space", 12, 342);
+        ctx.fillText(it.type === "letter" ? it.ch : "Pause", 12, 342);
         const { data } = ctx.getImageData(0, 0, W, H);
         const palette = quantize(data, 64);
         enc.writeFrame(applyPalette(data, palette), W, H, { palette, delay: Math.round(speed * (it.type === "space" ? 700 : 1000)) });
@@ -88,7 +88,7 @@ export default function TextToSign() {
   }
 
   const it = items[Math.min(idx, items.length - 1)];
-  const letterIdx = items.slice(0, idx + 1).filter((x) => x.type === "letter").length - 1;
+  const lettersBefore = items.slice(0, idx).filter((x) => x.type === "letter").length;   // letters already shown
 
   return (
     <>
@@ -120,11 +120,16 @@ export default function TextToSign() {
           <div className="stack">
             {translated && <p className="muted">Translation: {translated}</p>}
             <div className="panel player">
-              {it.type === "letter" ? <img src={letterImage(it.ch)} alt={`ASL sign for ${it.ch}`} /> : <div className="readout empty">Space</div>}
-              <span className="muted">{it.type === "letter" ? `Letter ${it.ch}` : "Space"}</span>
+              {it.type === "letter" ? <><img src={letterImage(it.ch)} alt={`ASL sign for ${it.ch}`} /><span className="muted">Letter {it.ch}</span></> : (
+                <div className="pause-face">
+                  <div className="dots" aria-hidden="true"><span /><span /><span /></div>
+                  <div className="readout">Pause</div>
+                  <span className="muted">ASL has no sign for a space: signers leave a short pause between two fingerspelled words.</span>
+                </div>
+              )}
             </div>
             <div className="progress"><div style={{ width: `${((idx + 1) / items.length) * 100}%` }} /></div>
-            <Keycaps text={shown.split(/\s+/).map(cleanWord).filter(Boolean).join(" ")} done={Math.max(0, letterIdx)} now={it.type === "letter" ? letterIdx : null} size="sm" />
+            <Keycaps text={shown.split(/\s+/).map(cleanWord).filter(Boolean).join(" ")} done={lettersBefore} now={it.type === "letter" ? lettersBefore : null} size="sm" />
             <div className="btn-row">
               <button className="btn small" onClick={() => { if (!playing && idx >= items.length - 1) setIdx(0); setPlaying(!playing); }}>{playing ? "Pause" : "Play"}</button>
               <button className="btn small" onClick={() => { setIdx(0); setPlaying(true); }}>Restart</button>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ALPHABET, WORD_SIGNS, letterImage, signVideo } from "../lib/signs";
+import { WordFace } from "./WordFace";
 
 const TIPS: Record<string, string> = {
   J: "J is a movement: start from the I pose (little finger up) and draw a hook. Keep J/Z detection on.",
@@ -12,21 +13,21 @@ export function SignPicker() {
   return (
     <div className="grid-2">
       <div className="panel player" style={{ minHeight: 300 }}>
-        {isWord ? <div className="sign-card" style={{ width: "100%", border: 0, background: "none" }}><div className="face" style={{ height: 240, fontSize: 30 }}>{choice.toUpperCase()}</div></div>
+        {isWord ? <WordFace word={choice} large />
           : <img src={letterImage(choice)} alt={`ASL sign for ${choice}`} />}
       </div>
       <div className="stack">
         <label className="field">Sign
           <select value={choice} onChange={(e) => setChoice(e.target.value)}>
             <optgroup label="Letters">{ALPHABET.map((l) => <option key={l} value={l}>{l}</option>)}</optgroup>
-            <optgroup label="Word signs">{WORD_SIGNS.map((w) => <option key={w} value={w}>{w.toUpperCase()}</option>)}</optgroup>
+            <optgroup label="Word signs (9 in this demo)">{WORD_SIGNS.map((w) => <option key={w} value={w}>{w.toUpperCase()}</option>)}</optgroup>
           </select>
         </label>
         <div className="panel">
-          {isWord ? "Word sign: watch real people sign it, then copy the movement. Turn on Word signs in Settings to try it live."
+          {isWord ? "Word sign: click Watch the sign to see a real person sign it, then copy the movement. Turn on Word signs in Settings to try it live. This demo recognizes 9 word signs to stay light and fast."
             : TIPS[choice] ?? "Hold the pose steady in front of the camera: the letter is written once it stays stable."}
         </div>
-        <a className="btn" href={signVideo(choice)} target="_blank" rel="noreferrer">Watch real signers</a>
+        {!isWord && <a className="btn" href={signVideo(choice)} target="_blank" rel="noreferrer">Watch real signers</a>}
       </div>
     </div>
   );

@@ -155,7 +155,7 @@ export default function SignToText() {
               <Slider label="Repeat delay (s)" hint="Minimum time between two letters." value={cooldown} min={0.2} max={1.5} step={0.1} onChange={setCooldown} />
               <Check label="Detect J and Z (motion)" value={dyn} onChange={setDyn} />
               <Slider label="Motion sensitivity" value={moveSens} min={0.05} max={0.3} step={0.01} onChange={setMoveSens} />
-              <Check label="Word signs (whole words in one gesture)" value={words} onChange={setWords} />
+              <Check label="Word signs (9 whole words in this demo)" value={words} onChange={setWords} />
               <Check label="Use my letter examples" value={personalOn} onChange={setPersonalOn} />
               <h3>Agent</h3>
               <Check label="Interpret automatically" value={auto} onChange={setAuto} />

@@ -27,6 +27,7 @@ export default function Home() {
           <div className="stats">
             <div><b>99.23%</b><span>accuracy on 28 static signs</span></div>
             <div><b>86%</b><span>on 24 word signs</span></div>
+            <div><b>9</b><span>word signs in this demo, to keep it light</span></div>
             <div><b>0</b><span>frames uploaded</span></div>
           </div>
         </div>
@@ -50,7 +51,7 @@ export default function Home() {
         <Link className="link-card" to="/sign"><b>Sign to text</b><span>Fingerspell or sign whole words; the agent interprets, answers and speaks.</span></Link>
         <Link className="link-card" to="/practice"><b>Practice</b><span>Spell the word on screen. Adaptive drills bring back the letters you miss most.</span></Link>
         <Link className="link-card" to="/text"><b>Text to sign</b><span>Type a sentence in English or French and watch it spelled, then export a GIF.</span></Link>
-        <Link className="link-card" to="/chart"><b>ASL chart</b><span>The 26 letters and the 9 word signs, with videos of real signers.</span></Link>
+        <Link className="link-card" to="/chart"><b>ASL chart</b><span>The 26 letters and the 9 word signs of this demo, with videos of real signers.</span></Link>
         <Link className="link-card" to="/sign"><b>Personalization</b><span>Teach your own sign in 3 gestures, or fix a letter with 5 examples of your hand.</span></Link>
         <Link className="link-card" to="/results"><b>Results</b><span>How accurate the models are, sign by sign.</span></Link>
       </div>

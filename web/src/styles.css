@@ -76,6 +76,7 @@ main { max-width: 1180px; margin: 0 auto; padding: 36px 24px 80px; }
 .btn.small { padding: 8px 12px; font-size: 13px; border-radius: 10px; }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
 .btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
+a.btn { text-decoration: none; }
 
 /* ---------- surfaces ---------- */
 .panel { background: rgba(255, 255, 255, 0.72); border: 1px solid rgba(255, 255, 255, 0.9); border-radius: 18px; padding: 18px 20px;
@@ -153,6 +154,15 @@ details.fold[open] summary::after { content: " –"; }
 .sign-card .row { display: flex; width: 100%; justify-content: space-between; align-items: center; }
 .sign-card .k { font-family: var(--display); font-weight: 700; font-size: 18px; }
 .sign-card a { font-size: 13px; }
+.word-face { width: 100%; height: 150px; border-radius: 12px; background: var(--foil); display: grid; place-content: center;
+  justify-items: center; gap: 12px; text-align: center; padding: 10px; }
+.word-face .w { font-family: var(--display); font-weight: 700; font-size: 18px; letter-spacing: -0.02em; }
+.word-face .btn { background: rgba(255, 255, 255, 0.85); }
+.word-face.lg { height: 280px; gap: 18px; }
+.word-face.lg .w { font-size: 34px; }
+.pause-face { display: grid; justify-items: center; gap: 14px; text-align: center; max-width: 34ch; }
+.pause-face .dots { display: flex; gap: 10px; }
+.pause-face .dots span { width: 14px; height: 14px; border-radius: 50%; background: var(--foil); box-shadow: inset 0 -2px 0 rgba(14, 19, 48, 0.15); }
 .sign-card .face { height: 112px; width: 100%; display: grid; place-items: center; border-radius: 12px; background: var(--foil);
   font-family: var(--display); font-weight: 700; font-size: 18px; }
 .player { display: grid; place-items: center; gap: 10px; min-height: 380px; }

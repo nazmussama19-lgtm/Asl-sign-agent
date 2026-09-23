@@ -1,3 +1,4 @@
+import { WordFace } from "../components/WordFace";
 import { ALPHABET, WORD_SIGNS, letterImage, signVideo } from "../lib/signs";
 
 export default function Chart() {
@@ -16,13 +17,10 @@ export default function Chart() {
       <p className="muted" style={{ marginTop: 14 }}>Drawings: public domain, from Wikimedia Commons (wpclipart.com). J and Z are movements: the drawing shows the starting pose.</p>
 
       <h2 className="section-title">Word signs</h2>
-      <p className="section-sub">Watch real people sign each word, then turn on Word signs in the Sign to text settings to try it.</p>
+      <p className="section-sub">This demo recognizes 9 word signs, a lighter set that keeps it fast (the model was evaluated on 24). Watch real people sign each word, then turn on Word signs in the Sign to text settings to try it.</p>
       <div className="sign-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))" }}>
         {WORD_SIGNS.map((w) => (
-          <div key={w} className="sign-card">
-            <div className="face">{w.toUpperCase()}</div>
-            <div className="row"><span /><a href={signVideo(w)} target="_blank" rel="noreferrer">Watch real signers</a></div>
-          </div>
+          <div key={w} className="sign-card"><WordFace word={w} /></div>
         ))}
       </div>
       <p className="muted" style={{ marginTop: 14 }}>Videos open the SignASL.org dictionary, where several people sign each word. They are linked, not embedded.</p>
