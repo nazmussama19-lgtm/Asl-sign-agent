@@ -1,0 +1,217 @@
+{
+ "layers": [
+  {
+   "type": "Conv1D",
+   "name": "conv1d",
+   "weights": {
+    "kernel": {
+     "offset": 0,
+     "shape": [
+      5,
+      126,
+      64
+     ]
+    },
+    "bias": {
+     "offset": 40320,
+     "shape": [
+      64
+     ]
+    }
+   },
+   "activation": "relu",
+   "kernel_size": [
+    5
+   ]
+  },
+  {
+   "type": "BatchNormalization",
+   "name": "batch_normalization",
+   "weights": {
+    "gamma": {
+     "offset": 40384,
+     "shape": [
+      64
+     ]
+    },
+    "beta": {
+     "offset": 40448,
+     "shape": [
+      64
+     ]
+    },
+    "moving_mean": {
+     "offset": 40512,
+     "shape": [
+      64
+     ]
+    },
+    "moving_variance": {
+     "offset": 40576,
+     "shape": [
+      64
+     ]
+    }
+   },
+   "epsilon": 0.001
+  },
+  {
+   "type": "Conv1D",
+   "name": "conv1d_1",
+   "weights": {
+    "kernel": {
+     "offset": 40640,
+     "shape": [
+      3,
+      64,
+      128
+     ]
+    },
+    "bias": {
+     "offset": 65216,
+     "shape": [
+      128
+     ]
+    }
+   },
+   "activation": "relu",
+   "kernel_size": [
+    3
+   ]
+  },
+  {
+   "type": "BatchNormalization",
+   "name": "batch_normalization_1",
+   "weights": {
+    "gamma": {
+     "offset": 65344,
+     "shape": [
+      128
+     ]
+    },
+    "beta": {
+     "offset": 65472,
+     "shape": [
+      128
+     ]
+    },
+    "moving_mean": {
+     "offset": 65600,
+     "shape": [
+      128
+     ]
+    },
+    "moving_variance": {
+     "offset": 65728,
+     "shape": [
+      128
+     ]
+    }
+   },
+   "epsilon": 0.001
+  },
+  {
+   "type": "GRU",
+   "name": "gru",
+   "weights": {
+    "kernel": {
+     "offset": 65856,
+     "shape": [
+      128,
+      384
+     ]
+    },
+    "recurrent_kernel": {
+     "offset": 115008,
+     "shape": [
+      128,
+      384
+     ]
+    },
+    "bias": {
+     "offset": 164160,
+     "shape": [
+      2,
+      384
+     ]
+    }
+   },
+   "activation": "tanh",
+   "units": 128,
+   "return_sequences": true
+  },
+  {
+   "type": "GRU",
+   "name": "gru_1",
+   "weights": {
+    "kernel": {
+     "offset": 164928,
+     "shape": [
+      128,
+      192
+     ]
+    },
+    "recurrent_kernel": {
+     "offset": 189504,
+     "shape": [
+      64,
+      192
+     ]
+    },
+    "bias": {
+     "offset": 201792,
+     "shape": [
+      2,
+      192
+     ]
+    }
+   },
+   "activation": "tanh",
+   "units": 64,
+   "return_sequences": false
+  },
+  {
+   "type": "Dense",
+   "name": "dense",
+   "weights": {
+    "kernel": {
+     "offset": 202176,
+     "shape": [
+      64,
+      64
+     ]
+    },
+    "bias": {
+     "offset": 206272,
+     "shape": [
+      64
+     ]
+    }
+   },
+   "activation": "relu",
+   "units": 64
+  },
+  {
+   "type": "Dense",
+   "name": "dense_1",
+   "weights": {
+    "kernel": {
+     "offset": 206336,
+     "shape": [
+      64,
+      9
+     ]
+    },
+    "bias": {
+     "offset": 206912,
+     "shape": [
+      9
+     ]
+    }
+   },
+   "activation": "softmax",
+   "units": 9
+  }
+ ],
+ "floats": 206921
+}

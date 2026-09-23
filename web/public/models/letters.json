@@ -1,0 +1,151 @@
+{
+ "layers": [
+  {
+   "type": "Dense",
+   "name": "dense_3",
+   "weights": {
+    "kernel": {
+     "offset": 0,
+     "shape": [
+      63,
+      256
+     ]
+    },
+    "bias": {
+     "offset": 16128,
+     "shape": [
+      256
+     ]
+    }
+   },
+   "activation": "relu",
+   "units": 256
+  },
+  {
+   "type": "BatchNormalization",
+   "name": "batch_normalization",
+   "weights": {
+    "gamma": {
+     "offset": 16384,
+     "shape": [
+      256
+     ]
+    },
+    "beta": {
+     "offset": 16640,
+     "shape": [
+      256
+     ]
+    },
+    "moving_mean": {
+     "offset": 16896,
+     "shape": [
+      256
+     ]
+    },
+    "moving_variance": {
+     "offset": 17152,
+     "shape": [
+      256
+     ]
+    }
+   },
+   "epsilon": 0.001
+  },
+  {
+   "type": "Dense",
+   "name": "dense_4",
+   "weights": {
+    "kernel": {
+     "offset": 17408,
+     "shape": [
+      256,
+      128
+     ]
+    },
+    "bias": {
+     "offset": 50176,
+     "shape": [
+      128
+     ]
+    }
+   },
+   "activation": "relu",
+   "units": 128
+  },
+  {
+   "type": "BatchNormalization",
+   "name": "batch_normalization_1",
+   "weights": {
+    "gamma": {
+     "offset": 50304,
+     "shape": [
+      128
+     ]
+    },
+    "beta": {
+     "offset": 50432,
+     "shape": [
+      128
+     ]
+    },
+    "moving_mean": {
+     "offset": 50560,
+     "shape": [
+      128
+     ]
+    },
+    "moving_variance": {
+     "offset": 50688,
+     "shape": [
+      128
+     ]
+    }
+   },
+   "epsilon": 0.001
+  },
+  {
+   "type": "Dense",
+   "name": "dense_5",
+   "weights": {
+    "kernel": {
+     "offset": 50816,
+     "shape": [
+      128,
+      64
+     ]
+    },
+    "bias": {
+     "offset": 59008,
+     "shape": [
+      64
+     ]
+    }
+   },
+   "activation": "relu",
+   "units": 64
+  },
+  {
+   "type": "Dense",
+   "name": "dense_6",
+   "weights": {
+    "kernel": {
+     "offset": 59072,
+     "shape": [
+      64,
+      28
+     ]
+    },
+    "bias": {
+     "offset": 60864,
+     "shape": [
+      28
+     ]
+    }
+   },
+   "activation": "softmax",
+   "units": 28
+  }
+ ],
+ "floats": 60892
+}
