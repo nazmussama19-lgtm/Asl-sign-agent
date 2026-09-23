@@ -110,3 +110,69 @@ def test_practice_engine_flow():
     for p in (STATS_PATH, SAMPLES_PATH):
         if os.path.exists(p):
             os.remove(p)
+
+
+# ---------------- J / Z detection ----------------
+from asl_core import DynamicDetector, hand_shape, count_strokes  # noqa: E402
+
+
+def _hand(extended, dx=0.0, dy=0.0):
+    """Synthetic hand: wrist at the bottom, fingers pointing up; `extended` = (index, middle, ring, pinky)."""
+    lm = np.zeros((21, 3), dtype=np.float32)
+    lm[0] = [0.5, 0.8, 0]
+    lm[1:5] = [[0.44, 0.74, 0], [0.40, 0.70, 0], [0.38, 0.66, 0], [0.37, 0.63, 0]]   # thumb, folded aside
+    for f, (base, ext) in enumerate(zip((5, 9, 13, 17), extended)):
+        x = 0.44 + 0.04 * f
+        lm[base] = [x, 0.62, 0]                                   # MCP
+        lm[base + 1] = [x, 0.55, 0]                               # PIP
+        if ext:
+            lm[base + 2], lm[base + 3] = [x, 0.49, 0], [x, 0.43, 0]
+        else:                                                     # curled back toward the palm
+            lm[base + 2], lm[base + 3] = [x, 0.60, 0], [x, 0.64, 0]
+    lm[:, 0] += dx
+    lm[:, 1] += dy
+    return lm
+
+
+INDEX, PINKY, OPEN = (True, False, False, False), (False, False, False, True), (True, True, True, True)
+
+
+def _run(frames, label=None):
+    det = DynamicDetector()
+    out = None
+    for lm in frames + [frames[-1]] * 12:                       # then hold still so the gesture ends
+        _, letter = det.update(lm, label)
+        out = letter or out
+    return out
+
+
+def _z_path(shape, steps=8):
+    pts = []
+    for i in range(steps):                                       # top stroke, left to right
+        pts.append((i * 0.02, 0.0))
+    for i in range(steps):                                       # diagonal, back to the left and down
+        pts.append((0.14 - i * 0.02, i * 0.012))
+    for i in range(steps):                                       # bottom stroke, left to right
+        pts.append((i * 0.02, 0.096))
+    return [_hand(shape, dx, dy) for dx, dy in pts]
+
+
+def test_hand_shapes_and_strokes():
+    assert hand_shape(_hand(INDEX)) == "index"
+    assert hand_shape(_hand(PINKY)) == "pinky"
+    assert hand_shape(_hand(OPEN)) is None
+    assert count_strokes([0, 0.1, 0.0, 0.1], 0.04) == 3
+    assert count_strokes([0, 0.01, 0.0, 0.012, 0.001], 0.04) == 0      # jitter is not a stroke
+
+
+def test_z_needs_the_z_shape():
+    assert _run(_z_path(INDEX)) == "Z"
+    assert _run(_z_path(OPEN)) is None                                  # zigzag with an open hand
+    sideways = [_hand(INDEX, i * 0.02, 0) for i in range(12)]           # one stroke only
+    assert _run(sideways) is None
+
+
+def test_j_needs_the_i_pose_and_little_finger():
+    hook = [_hand(PINKY, -i * 0.01 * (i > 6), i * 0.02) for i in range(12)]
+    assert _run(hook, label="I") == "J"
+    assert _run(hook, label="A") is None

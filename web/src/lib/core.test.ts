@@ -1,6 +1,6 @@
 // Same checks as tests/test_core.py, on the TypeScript ports.
 import { describe, expect, it } from "vitest";
-import { SentenceBuilder, buildFrameFeatures, isThumbsUp, normalizeLandmarks, resampleSequence, type Landmarks } from "./core";
+import { DynamicDetector, SentenceBuilder, buildFrameFeatures, countStrokes, handShape, isThumbsUp, normalizeLandmarks, resampleSequence, type Landmarks } from "./core";
 import { CustomSigns, PersonalLetters } from "./personal";
 import { LETTERS, PracticeEngine, loadStats, pickWord } from "./practice";
 
@@ -74,5 +74,52 @@ describe("core", () => {
     expect(eng.stats.confusion["I>K"]).toBe(1);
     expect(LETTERS.includes("J") || LETTERS.includes("Z")).toBe(false);
     expect(LETTERS).toContain(pickWord("letters", "fr", "Easy", loadStats()));
+  });
+
+  // ---------- J / Z (same cases as tests/test_core.py) ----------
+  const INDEX = [true, false, false, false], PINKY = [false, false, false, true], OPEN = [true, true, true, true];
+  function hand(extended: boolean[], dx = 0, dy = 0): Landmarks {
+    const lm: Landmarks = Array.from({ length: 21 }, () => [0, 0, 0]);
+    lm[0] = [0.5, 0.8, 0];
+    [[0.44, 0.74], [0.40, 0.70], [0.38, 0.66], [0.37, 0.63]].forEach(([x, y], i) => { lm[1 + i] = [x, y, 0]; });
+    [5, 9, 13, 17].forEach((base, f) => {
+      const x = 0.44 + 0.04 * f;
+      lm[base] = [x, 0.62, 0];
+      lm[base + 1] = [x, 0.55, 0];
+      if (extended[f]) { lm[base + 2] = [x, 0.49, 0]; lm[base + 3] = [x, 0.43, 0]; }
+      else { lm[base + 2] = [x, 0.60, 0]; lm[base + 3] = [x, 0.64, 0]; }
+    });
+    return lm.map(([x, y, z]) => [x + dx, y + dy, z]);
+  }
+  function run(frames: Landmarks[], label: string | null = null) {
+    const det = new DynamicDetector();
+    let out: string | null = null;
+    for (const lm of [...frames, ...Array(12).fill(frames[frames.length - 1])]) out = det.update(lm, label).letter ?? out;
+    return out;
+  }
+  const zPath = (shape: boolean[]) => [
+    ...Array.from({ length: 8 }, (_, i) => hand(shape, i * 0.02, 0)),
+    ...Array.from({ length: 8 }, (_, i) => hand(shape, 0.14 - i * 0.02, i * 0.012)),
+    ...Array.from({ length: 8 }, (_, i) => hand(shape, i * 0.02, 0.096)),
+  ];
+
+  it("hand shapes and strokes", () => {
+    expect(handShape(hand(INDEX))).toBe("index");
+    expect(handShape(hand(PINKY))).toBe("pinky");
+    expect(handShape(hand(OPEN))).toBe(null);
+    expect(countStrokes([0, 0.1, 0.0, 0.1], 0.04)).toBe(3);
+    expect(countStrokes([0, 0.01, 0.0, 0.012, 0.001], 0.04)).toBe(0);
+  });
+
+  it("Z needs the Z shape", () => {
+    expect(run(zPath(INDEX))).toBe("Z");
+    expect(run(zPath(OPEN))).toBe(null);
+    expect(run(Array.from({ length: 12 }, (_, i) => hand(INDEX, i * 0.02, 0)))).toBe(null);
+  });
+
+  it("J needs the I pose and the little finger", () => {
+    const hook = Array.from({ length: 12 }, (_, i) => hand(PINKY, i > 6 ? -i * 0.01 : 0, i * 0.02));
+    expect(run(hook, "I")).toBe("J");
+    expect(run(hook, "A")).toBe(null);
   });
 });

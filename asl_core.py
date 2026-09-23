@@ -83,29 +83,72 @@ class SentenceBuilder:
     def get(self):
         with self.lock: return self.sentence
 
-class DynamicDetector:
-    """Detection de J et Z par mouvement, avec PORTE DE POSE (strategie la plus fiable) :
-    - J : le geste doit partir de la pose 'I' (auriculaire leve), trajet de l'auriculaire dominant.
-    - Z : index dominant + au moins 2 changements de direction horizontale (zigzag).
-    Pendant tout mouvement, les lettres statiques sont bloquees (anti-parasites)."""
+def _extended(lm, tip, pip):
+    """A finger is extended when its tip is clearly farther from the wrist than its middle joint."""
+    return np.linalg.norm(lm[tip, :2] - lm[0, :2]) > 1.1 * np.linalg.norm(lm[pip, :2] - lm[0, :2])
 
-    def __init__(self, move_threshold=0.12, window=8, min_path=0.20):
+
+def hand_shape(lm):
+    """'index' when only the index is extended (Z), 'pinky' when only the little finger is (J), else None."""
+    ext = [_extended(lm, t, p) for t, p in ((8, 6), (12, 10), (16, 14), (20, 18))]
+    if ext == [True, False, False, False]:
+        return "index"
+    if ext == [False, False, False, True]:
+        return "pinky"
+    return None
+
+
+def count_strokes(xs, min_stroke):
+    """Number of back-and-forth strokes along x, ignoring wiggles shorter than min_stroke."""
+    strokes, direction, extreme = 0, 0, xs[0] if len(xs) else 0.0
+    for x in xs:
+        if direction == 0:
+            if abs(x - extreme) >= min_stroke:
+                direction, strokes, extreme = (1 if x > extreme else -1), 1, x
+        elif direction > 0:
+            if x > extreme:
+                extreme = x
+            elif extreme - x >= min_stroke:
+                direction, strokes, extreme = -1, strokes + 1, x
+        else:
+            if x < extreme:
+                extreme = x
+            elif x - extreme >= min_stroke:
+                direction, strokes, extreme = 1, strokes + 1, x
+    return strokes
+
+
+class DynamicDetector:
+    """J and Z from motion, checked against the hand shape so that ordinary movements are ignored.
+    - J: starts from the I pose, only the little finger extended, the little finger does the moving.
+    - Z: only the index extended, three real strokes (right, diagonal, right) and an overall
+      downward path, like drawing a Z.
+    While the hand moves, static letters are paused (see SentenceBuilder callers)."""
+
+    def __init__(self, move_threshold=0.12, window=8, min_path=0.20, min_stroke=0.04, min_drop=0.03):
         self.speed_win = deque(maxlen=window)
+        self.recent = deque(maxlen=window + 1)   # (fingertip, shape) of the last frames: the gesture's start
         self.move_threshold = move_threshold
         self.min_path = min_path
+        self.min_stroke = min_stroke
+        self.min_drop = min_drop
         self.active = False
         self.prev = None
-        self.start_pose = None
-        self.path_index = 0.0
-        self.path_pinky = 0.0
-        self.dir_changes = 0
-        self.last_dx_sign = 0
+        self._reset(None)
+
+    def _reset(self, start_pose):
+        self.start_pose = start_pose
+        self.path_index = self.path_pinky = 0.0
+        self.trail = []               # index fingertip positions during the gesture
+        self.shapes = []              # hand shape of each frame during the gesture
 
     def update(self, landmarks, current_static_label):
         idx = landmarks[8, :2].astype(np.float32)
         pky = landmarks[20, :2].astype(np.float32)
         moving = False
         letter = None
+        shape = hand_shape(landmarks)
+        self.recent.append((idx.copy(), shape))
         if self.prev is not None:
             d_idx = float(np.linalg.norm(idx - self.prev[0]))
             d_pky = float(np.linalg.norm(pky - self.prev[1]))
@@ -114,29 +157,33 @@ class DynamicDetector:
                 moving = True
                 if not self.active:
                     self.active = True
-                    self.start_pose = current_static_label     # pose juste avant le geste
-                    self.path_index = self.path_pinky = 0.0
-                    self.dir_changes = 0
-                    self.last_dx_sign = 0
+                    self._reset(current_static_label)      # pose just before the gesture
+                    # motion is only confirmed after a few frames: start the trail where it began
+                    self.trail = [p for p, _ in self.recent]
+                    self.shapes = [sh for _, sh in self.recent]
+                else:
+                    self.trail.append(idx.copy())
+                    self.shapes.append(shape)
                 self.path_index += d_idx
                 self.path_pinky += d_pky
-                dx = float(idx[0] - self.prev[0][0])
-                s = 1 if dx > 0.004 else (-1 if dx < -0.004 else 0)
-                if s != 0:
-                    if self.last_dx_sign != 0 and s != self.last_dx_sign:
-                        self.dir_changes += 1
-                    self.last_dx_sign = s
-            else:
-                if self.active:
-                    self.active = False
-                    total = self.path_index + self.path_pinky
-                    if total > self.min_path:
-                        if self.start_pose == "I" and self.path_pinky >= 0.6 * self.path_index:
-                            letter = "J"
-                        elif self.dir_changes >= 2 and self.path_index > self.path_pinky:
-                            letter = "Z"
+            elif self.active:
+                self.active = False
+                letter = self._decide()
         self.prev = (idx.copy(), pky.copy())
         return moving, letter
+
+    def _decide(self):
+        if self.path_index + self.path_pinky <= self.min_path or not self.shapes:
+            return None
+        share = lambda s: sum(1 for v in self.shapes if v == s) / len(self.shapes)
+        if self.start_pose == "I" and share("pinky") >= 0.5 and self.path_pinky >= 0.6 * self.path_index:
+            return "J"
+        xs = [p[0] for p in self.trail]
+        drop = float(self.trail[-1][1] - self.trail[0][1])          # y grows downward
+        if (share("index") >= 0.6 and count_strokes(xs, self.min_stroke) >= 3
+                and drop >= self.min_drop and self.path_index > self.path_pinky):
+            return "Z"
+        return None
 
 
 def is_thumbs_up(landmarks):
