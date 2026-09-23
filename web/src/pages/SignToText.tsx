@@ -22,7 +22,7 @@ export default function SignToText() {
   const [conf, setConf] = useState(0.8);
   const [stab, setStab] = useState(4);
   const [cooldown, setCooldown] = useState(0.6);
-  const [dyn, setDyn] = useState(true);
+  const [dyn, setDyn] = useState(false);          // J/Z motion detection is opt-in
   const [moveSens, setMoveSens] = useState(0.12);
   const [words, setWords] = useState(false);
   const [personalOn, setPersonalOn] = useState(true);
@@ -33,6 +33,12 @@ export default function SignToText() {
   const [providers, setProviders] = useState<ProviderInfo[]>([]);
   const [provider, setProvider] = useState<ProviderId>("auto");
   const [compareOn, setCompareOn] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);    // settings sheet on small screens
+
+  function resetSettings() {
+    setConf(0.8); setStab(4); setCooldown(0.6); setDyn(false); setMoveSens(0.12); setWords(false); setPersonalOn(true);
+    setAuto(true); setPause(5); setConvOn(true); setVoice(true); setProvider("auto"); setCompareOn(false);
+  }
 
   // conversation
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -101,8 +107,18 @@ export default function SignToText() {
   const shown = raw.slice(-22);
   const nLetters = shown.replace(/ /g, "").length;
   const chips = [
-    view.moving ? <span key="m" className="chip">Motion (J/Z)</span> : view.top[0] && view.top[0].conf >= 0.8 ?
-      <span key="l" className="chip dark">{view.top[0].label} {Math.round(view.top[0].conf * 100)}%</span> : null,
+    view.handPresent && !view.moving && view.top.length > 0 ? (
+      <div key="top" className="confidence" aria-label="Top 3 letters and their confidence">
+        {view.top.map((t, i) => (
+          <div key={i} className={`conf-row ${i === 0 && t.conf >= conf ? "best" : ""}`}>
+            <span className="k">{t.label === "space" ? "sp" : t.label}</span>
+            <span className="meter"><span style={{ width: `${Math.round(t.conf * 100)}%` }} /></span>
+            <span className="p">{Math.round(t.conf * 100)}%</span>
+          </div>
+        ))}
+      </div>
+    ) : null,
+    view.moving ? <span key="m" className="chip">Motion (J/Z)</span> : null,
     view.flash ? <span key="f" className="chip">{view.flash}</span> : null,
     agentView.suggestions[0] && view.handPresent ? <span key="s" className="chip">Thumbs up = {agentView.suggestions[0]}</span> : null,
     view.capture ? <span key="c" className="chip dark">{view.capture}</span> : null,
@@ -113,6 +129,9 @@ export default function SignToText() {
       <h1 className="page-title">Sign to text</h1>
       <p className="page-sub">Sign in front of the camera. The agent builds the text, interprets it after a pause, and answers you.</p>
       {res.status === "error" && <p className="feed err">The models could not load ({res.message}). Reload the page.</p>}
+
+      <div className="workspace">
+      <div className="workspace-main">
 
       <div className="grid-2">
         <div className="stack">
@@ -146,34 +165,6 @@ export default function SignToText() {
             <button className="btn small" onClick={() => agentView.text && res.status === "ready" && speak(agentView.text, detectLang(agentView.text, res.res.vocab) === "fr" ? "fr-FR" : "en-US")}>Read out loud</button>
           </div>
 
-          <details className="fold panel">
-            <summary>Settings</summary>
-            <div className="settings" style={{ marginTop: 14 }}>
-              <h3>Recognition</h3>
-              <Slider label="Confidence threshold" hint="A letter is only accepted above this confidence." value={conf} min={0.5} max={0.99} step={0.01} onChange={setConf} />
-              <Slider label="Stability (frames)" hint="Frames that must agree before a letter is written." value={stab} min={2} max={8} step={1} onChange={setStab} />
-              <Slider label="Repeat delay (s)" hint="Minimum time between two letters." value={cooldown} min={0.2} max={1.5} step={0.1} onChange={setCooldown} />
-              <Check label="Detect J and Z (motion)" value={dyn} onChange={setDyn} />
-              <Slider label="Motion sensitivity" value={moveSens} min={0.05} max={0.3} step={0.01} onChange={setMoveSens} />
-              <Check label="Word signs (9 whole words in this demo)" value={words} onChange={setWords} />
-              <Check label="Use my letter examples" value={personalOn} onChange={setPersonalOn} />
-              <h3>Agent</h3>
-              <Check label="Interpret automatically" value={auto} onChange={setAuto} />
-              <Slider label="Pause before interpreting (s)" value={pause} min={1} max={8} step={0.5} onChange={setPause} />
-              <h3>Conversation</h3>
-              <Check label="Reply to my sentences" value={convOn} onChange={setConvOn} />
-              <Check label="Read replies out loud" value={voice} onChange={setVoice} />
-              <label className="field">AI model
-                <select value={provider} onChange={(e) => setProvider(e.target.value as ProviderId)}>
-                  <option value="auto">Auto (best available)</option>
-                  {providers.map((p) => <option key={p.id} value={p.id}>{p.label} ({p.model})</option>)}
-                </select>
-                <span className="hint">{providers.length ? "Auto tries Groq, then Groq (fast), then Gemini." : "No AI is configured here: the local rules answer."}</span>
-              </label>
-              <Check label="Compare Groq and Gemini side by side" value={compareOn} onChange={setCompareOn}
-                disabled={!(providers.some((p) => p.id === "groq") && providers.some((p) => p.id === "gemini"))} />
-            </div>
-          </details>
         </div>
       </div>
 
@@ -250,6 +241,44 @@ export default function SignToText() {
       <h2 className="section-title">Learn the signs</h2>
       <p className="section-sub">Pick a letter or a word to see how to sign it.</p>
       <SignPicker />
+      </div>
+
+      <aside className={`config panel ${sheetOpen ? "open" : ""}`} aria-label="Settings">
+        <div className="config-head">
+          <h2>Settings</h2>
+          <div className="btn-row">
+            <button className="btn small" onClick={resetSettings}>Reset</button>
+            <button className="btn small config-close" onClick={() => setSheetOpen(false)}>Done</button>
+          </div>
+        </div>
+        <div className="settings">
+              <h3>Recognition</h3>
+              <Slider label="Confidence threshold" hint="A letter is only accepted above this confidence." value={conf} min={0.5} max={0.99} step={0.01} onChange={setConf} />
+              <Slider label="Stability (frames)" hint="Frames that must agree before a letter is written." value={stab} min={2} max={8} step={1} onChange={setStab} />
+              <Slider label="Repeat delay (s)" hint="Minimum time between two letters." value={cooldown} min={0.2} max={1.5} step={0.1} onChange={setCooldown} />
+              <Check label="Detect J and Z (motion)" value={dyn} onChange={setDyn} />
+              <Slider label="Motion sensitivity" value={moveSens} min={0.05} max={0.3} step={0.01} onChange={setMoveSens} />
+              <Check label="Word signs (9 whole words in this demo)" value={words} onChange={setWords} />
+              <Check label="Use my letter examples" value={personalOn} onChange={setPersonalOn} />
+              <h3>Agent</h3>
+              <Check label="Interpret automatically" value={auto} onChange={setAuto} />
+              <Slider label="Pause before interpreting (s)" value={pause} min={1} max={8} step={0.5} onChange={setPause} />
+              <h3>Conversation</h3>
+              <Check label="Reply to my sentences" value={convOn} onChange={setConvOn} />
+              <Check label="Read replies out loud" value={voice} onChange={setVoice} />
+              <label className="field">AI model
+                <select value={provider} onChange={(e) => setProvider(e.target.value as ProviderId)}>
+                  <option value="auto">Auto (best available)</option>
+                  {providers.map((p) => <option key={p.id} value={p.id}>{p.label} ({p.model})</option>)}
+                </select>
+                <span className="hint">{providers.length ? "Auto tries Groq, then Groq (fast), then Gemini." : "No AI is configured here: the local rules answer."}</span>
+              </label>
+              <Check label="Compare Groq and Gemini side by side" value={compareOn} onChange={setCompareOn}
+                disabled={!(providers.some((p) => p.id === "groq") && providers.some((p) => p.id === "gemini"))} />
+        </div>
+      </aside>
+      <button className="btn primary config-toggle" onClick={() => setSheetOpen(true)}>Settings</button>
+      </div>
     </>
   );
 }
