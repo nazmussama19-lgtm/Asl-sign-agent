@@ -11,9 +11,13 @@ tels qu'ils apparaissent à l'écran.
 
 ## 1. Utiliser la version en ligne
 
-Ouvrez [sign-agent.streamlit.app](https://sign-agent.streamlit.app/). Rien à installer : autorisez la caméra
-quand le navigateur le demande. La page **Home** indique ce qui est actif sur ce déploiement
-(modèles, IA de conversation, photos).
+Ouvrez **[asl-agent.vercel.app](https://asl-agent.vercel.app/)** dans Chrome, Edge ou Firefox. Rien à installer :
+allez sur **Sign to text**, cliquez sur **Start the camera** et autorisez la caméra. La démo web fait tourner le suivi
+de la main et les modèles dans votre navigateur : la vidéo n'est jamais envoyée. Elle a les mêmes pages que
+l'application complète décrite plus bas ; ses réglages sont dans le panneau de gauche (bouton **Settings** sur
+téléphone), et la détection J/Z ainsi que les signes-mots sont désactivés par défaut.
+
+La suite de ce guide décrit l'**application complète** à lancer en local (Streamlit).
 
 ## 2. Installation locale (optionnelle)
 
@@ -127,7 +131,7 @@ Détection automatique. Forcer un modèle : `ASL_OLLAMA_MODEL=nom streamlit run 
 |---|---|
 | `pip install` échoue sur mediapipe/tensorflow | Vérifiez Python **3.11** (`python --version` dans le venv) |
 | La caméra ne démarre pas | Autorisez-la dans le navigateur, fermez les autres applications qui l'utilisent |
-| Vidéo noire en ligne (réseau d'entreprise, 4G) | Le déploiement a besoin d'un serveur relais TURN (voir README, section Deployment) |
+| Vidéo noire avec l'app Streamlit déployée en ligne | Ce déploiement a besoin d'un serveur relais TURN (voir README, section Deployment). La démo web n'en a pas besoin |
 | Kaggle : `403 Forbidden` | Règles de la compétition non acceptées sur kaggle.com |
 | L'IA ne répond pas | Vérifiez les clés dans les *secrets* ; la ligne sous la réponse indique quel modèle a répondu |
 | Conversation muette | Cliquez une fois dans la page (les navigateurs bloquent l'audio avant une interaction) |
@@ -138,13 +142,11 @@ Détection automatique. Forcer un modèle : `ASL_OLLAMA_MODEL=nom streamlit run 
 ## 6. Confidentialité et données
 
 - **En local avec Ollama** : tout reste sur votre machine.
-- **En ligne** : la vidéo est traitée par le serveur qui héberge l'application (Streamlit Cloud)
-  et n'est pas enregistrée. Seul le **texte** de la conversation est envoyé à Groq ou Gemini
-  quand ils sont utilisés.
+- **Démo web** : la vidéo est analysée dans votre navigateur et n'est jamais envoyée. Seul le **texte**
+  de la conversation part chez Groq ou Gemini. Exemples personnels et statistiques restent dans le navigateur.
 - Les fichiers créés par l'usage (`assets/user_samples.csv`, `assets/personal_letters.csv`,
   `assets/practice_stats.json`, `assets/custom_signs.json`) contiennent des coordonnées de la main,
-  jamais d'images. Ils sont écrits sur la machine qui exécute l'application et exclus de git.
-  En ligne, ils sont donc partagés entre les visiteurs et effacés à chaque redémarrage du serveur.
+  jamais d'images. Ils sont écrits sur la machine qui exécute l'application complète et exclus de git.
 
 ## 7. Périmètre
 

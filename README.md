@@ -4,10 +4,13 @@
 
 **A real-time AI agent that reads American Sign Language (fingerspelling and word signs), interprets it, talks back and speaks.**
 
-[![Live demo](https://img.shields.io/badge/live%20demo-sign--agent.streamlit.app-6B5BFF)](https://sign-agent.streamlit.app/)
+**[Try the live demo: asl-agent.vercel.app](https://asl-agent.vercel.app/)**
+
+[![Live demo](https://img.shields.io/badge/live%20demo-asl--agent.vercel.app-6B5BFF)](https://asl-agent.vercel.app/)
 ![Python](https://img.shields.io/badge/python-3.11-6B5BFF)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.15-151833)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.45-151833)
+![React](https://img.shields.io/badge/React-18-151833)
 [![CI](https://github.com/nazmussama19-lgtm/Asl-sign-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/nazmussama19-lgtm/Asl-sign-agent/actions/workflows/ci.yml)
 ![License](https://img.shields.io/badge/license-MIT-6B5BFF)
 
@@ -63,11 +66,24 @@ flowchart LR
 
 The word-sign model is trained on the [Google ASL Signs](https://www.kaggle.com/competitions/asl-signs) dataset, which covers up to **250 signs**. We downloaded and evaluated **24 signs**; the deployed demo ships a lighter **9-sign** model to keep the app small and fast.
 
+## Two versions
+
+| | **Web demo** | **Full app** |
+|---|---|---|
+| For | trying it online, in one click | running it on your own computer |
+| Link / command | **[asl-agent.vercel.app](https://asl-agent.vercel.app/)** | `streamlit run app.py` |
+| Built with | React + TypeScript (`web/`) | Python + Streamlit |
+| Where the video is analysed | **in your browser**: the video never leaves your computer | on your computer (Python, MediaPipe, TensorFlow) |
+| Conversation | Groq and Gemini (through a serverless function), local rules as a fallback | Groq, Gemini, **Ollama** (fully offline) or local rules |
+| Extras | nothing to install, works on phones | sign photos and word-sign animations when the datasets are installed, retraining notebooks |
+
+Both versions use **the same trained models and the same interpreting agent**: the web demo is a TypeScript port, and automated tests check that it gives the same results as Python and Keras (see [`web/README.md`](web/README.md)).
+
 ## Try it online
 
-**[sign-agent.streamlit.app](https://sign-agent.streamlit.app/)**: click **Start** under the video and allow your camera. The app may take a minute to wake up if nobody has used it recently.
+Open **[asl-agent.vercel.app](https://asl-agent.vercel.app/)** in Chrome, Edge or Firefox, go to **Sign to text**, click **Start the camera** and allow it. The first visit downloads the hand tracker and the models (about 10 MB), then everything runs in your browser: the video is never uploaded. Settings are in the left panel (a **Settings** button on phones); J/Z detection and word signs are off by default and can be turned on there.
 
-## Run it locally
+## Run the full app locally
 
 Requires **Python 3.11** (TensorFlow 2.15 and MediaPipe 0.10.9). The environment takes about 1.5 to 2 GB.
 
@@ -79,18 +95,25 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Letter recognition, the agent, conversation (local rules), voice, practice and personalization work out of the box: the trained models ship with the repo. The **Home** page shows what is active. To add Groq or Gemini, copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml` and fill in the keys.
+Letter recognition, the agent, conversation (local rules), voice, practice and personalization work out of the box: the trained models ship with the repo. The **Home** page shows what is active. To add Groq or Gemini, copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml` and fill in the keys; for a fully offline conversation, install Ollama (below).
 
-## Deployment (Streamlit Community Cloud)
+## Run the web demo locally
 
-1. On [share.streamlit.io](https://share.streamlit.io), create an app from this repository, main file `app.py`.
-2. In **Advanced settings**, choose **Python 3.11**.
-3. In **Secrets**, paste the content of [`.streamlit/secrets.toml.example`](.streamlit/secrets.toml.example) and fill in:
-   - `GROQ_API_KEY` from [console.groq.com/keys](https://console.groq.com/keys) (free tier),
-   - `GEMINI_API_KEY` from [aistudio.google.com/apikey](https://aistudio.google.com/apikey) (free tier),
-   - `TURN_URLS`, `TURN_USERNAME`, `TURN_CREDENTIAL` from a TURN provider such as [Metered](https://www.metered.ca/stun-turn) (free tier). Without a relay, the webcam can stay black for visitors on work or mobile networks.
+Requires **Node.js 20+**.
 
-Every key is optional: a missing AI key hides that provider, and the agent falls back to the next one. Model names can be changed in the secrets without touching the code. `requirements.txt` and `packages.txt` are picked up automatically.
+```bash
+cd web
+npm install
+npm run dev          # http://localhost:5173
+```
+
+Without the Vercel functions, the conversation falls back to the local rules. `npm test` runs the model and agent tests.
+
+## Deployment
+
+**Web demo (Vercel, free).** Import the repository on [vercel.com](https://vercel.com), set **Root Directory** to `web` (Vercel detects Vite), and add the environment variables `GROQ_API_KEY` ([console.groq.com/keys](https://console.groq.com/keys)) and `GEMINI_API_KEY` ([aistudio.google.com/apikey](https://aistudio.google.com/apikey)). Model names can be changed with `GROQ_MODEL`, `GROQ_FAST_MODEL` and `GEMINI_MODEL`, without touching the code. Every push to `main` redeploys the site, and every pull request gets its own preview link.
+
+**Full app (optional, Streamlit Community Cloud).** It works, but the webcam is slow there: every frame travels to a small shared server and back. The web demo is the recommended online version. If you still want it: create an app from this repository (main file `app.py`, **Python 3.11** in Advanced settings) and paste [`.streamlit/secrets.toml.example`](.streamlit/secrets.toml.example) into **Secrets** with your keys and a TURN relay (for example [Metered](https://www.metered.ca/stun-turn), free tier).
 
 ## Optional add-ons
 
@@ -142,8 +165,10 @@ Asl-sign-agent/
 ├── sign_photos.py             # Automatic photo selection and enhancement
 ├── assets/vocab_{fr,en}.txt   # Frequency vocabularies (~23k words)
 ├── notebooks/                 # 01 letters training, 02 real-time demo, 03 word-signs training
-├── tests/                     # Pytest suite (core modules, conversation engine with mocked APIs)
+├── tests/                     # Pytest suite (core modules, conversation engine, web models vs Keras)
 ├── .streamlit/                # Theme and secrets template
+├── web/                       # React web demo (in-browser vision, Vercel functions for the AI)
+├── tools/web_models.py        # Exports the Keras models for the web demo, with a NumPy reference
 └── docs/                      # User guides (English, French) and demo GIFs
 ```
 
@@ -156,9 +181,9 @@ Asl-sign-agent/
 
 ## Privacy
 
-- **Locally with Ollama**: video, landmarks, personal samples and conversation never leave your machine.
-- **Online**: video frames are processed in memory by the server hosting the app and are not recorded. Only the **text** of the conversation is sent to Groq or Gemini when they are used. Translation in Text to Sign uses Google Translate.
-- Personal data files are gitignored.
+- **Web demo**: the video is analysed in your browser and never uploaded. Only the **text** of the conversation is sent to Groq or Gemini, through a serverless function that keeps the API keys secret. Personal examples, custom signs and practice statistics are stored in your browser.
+- **Full app, locally with Ollama**: video, landmarks, personal samples and conversation never leave your machine.
+- Personal data files of the full app are gitignored.
 
 ## Documentation
 

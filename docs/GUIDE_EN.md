@@ -9,8 +9,12 @@ word signs, an autonomous interpreting agent, and a spoken conversation with an 
 
 ## 1. Use the online version
 
-Open [sign-agent.streamlit.app](https://sign-agent.streamlit.app/). Nothing to install: allow the camera when your browser asks.
-The **Home** page shows what is active on this deployment (models, conversation AI, photos).
+Open **[asl-agent.vercel.app](https://asl-agent.vercel.app/)** in Chrome, Edge or Firefox. Nothing to install: go to
+**Sign to text**, click **Start the camera** and allow it. The web demo runs the hand tracking and the models in your
+browser, so the video is never uploaded. It has the same pages as the full app described below; its settings are in the
+left panel (a **Settings** button on phones), and J/Z detection and word signs are off by default.
+
+The rest of this guide describes the **full app** you run locally (Streamlit).
 
 ## 2. Run it locally (optional)
 
@@ -119,7 +123,7 @@ Detected automatically. Force a model with `ASL_OLLAMA_MODEL=name streamlit run 
 |---|---|
 | `pip install` fails on mediapipe/tensorflow | Check you are on Python **3.11** (`python --version` in the venv) |
 | The camera does not start | Allow it in the browser, close other apps using it |
-| Black video online (work network, mobile data) | The deployment needs a TURN relay server (README, section Deployment) |
+| Black video with the Streamlit app deployed online | That deployment needs a TURN relay server (README, section Deployment). The web demo does not |
 | Kaggle: `403 Forbidden` | Competition rules not accepted on kaggle.com |
 | The AI does not answer | Check the keys in the secrets; the line under each answer tells which model replied |
 | No sound | Click once in the page (browsers block audio before any interaction) |
@@ -130,13 +134,11 @@ Detected automatically. Force a model with `ASL_OLLAMA_MODEL=name streamlit run 
 ## 6. Privacy and data
 
 - **Locally with Ollama**: everything stays on your machine.
-- **Online**: video frames are processed in memory by the server hosting the app (Streamlit Cloud)
-  and are not recorded. Only the **text** of the conversation is sent to Groq or Gemini when they
-  are used.
+- **Web demo**: the video is analysed in your browser and never uploaded. Only the **text** of the
+  conversation is sent to Groq or Gemini. Personal examples and statistics stay in your browser.
 - Files created while using the app (`assets/user_samples.csv`, `assets/personal_letters.csv`,
   `assets/practice_stats.json`, `assets/custom_signs.json`) hold hand coordinates, never images.
-  They are written on the machine running the app and gitignored. Online, they are shared between
-  visitors and wiped when the server restarts.
+  They are written on the machine running the full app and gitignored.
 
 ## 7. Scope
 
