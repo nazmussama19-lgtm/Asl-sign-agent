@@ -328,6 +328,8 @@ with col_s:
         vp = ctx.video_processor
         raw = vp.builder.get()
         interp, journal, sugg = vp.agent.state()
+        if not interp and st.session_state.get("last_read"):      # keep the last reading visible after a reply
+            interp, journal = st.session_state.last_read["text"], st.session_state.last_read["journal"]
         shown = raw[-22:]
         n_letters = len(shown.replace(" ", ""))
         _panel("Letters read live",
@@ -383,7 +385,10 @@ if conv_on:
             vp = ctx.video_processor
             interp_now, _, _ = vp.agent.state()
             if interp_now:
+                _, journal_now, _ = vp.agent.state()
+                read = {"raw": vp.builder.get().strip(), "text": interp_now, "journal": journal_now}
                 user_msg = vp.agent.consume_interpretation()
+                st.session_state.last_read = read
                 if user_msg:
                     past = [(h["user"], h["reply"].text) for h in st.session_state.conv_history]
                     with st.spinner("Thinking..."):
@@ -395,7 +400,7 @@ if conv_on:
                             replies = []
                             main = respond(user_msg, past, brain, allow_cloud=allow_cloud)
                     st.session_state.cloud_replies = used + sum(1 for r in (replies or [main]) if r.provider in CLOUD)
-                    st.session_state.conv_history.append({"user": user_msg, "reply": main, "compare": replies})
+                    st.session_state.conv_history.append({"user": user_msg, "reply": main, "compare": replies, "read": read})
                     st.session_state.pending_speech = (main.text, main.lang)
                     vp.builder.clear()          # ready for the next sentence
 
@@ -406,6 +411,11 @@ if conv_on:
             for h in st.session_state.conv_history:
                 with st.chat_message("user"):
                     st.write(h["user"])
+                    if h.get("read"):
+                        with st.expander("How the agent read it"):
+                            st.caption("Signed: " + h["read"]["raw"])
+                            for line in h["read"]["journal"]:
+                                st.caption(line)
                 with st.chat_message("assistant"):
                     if h["compare"]:
                         cols = st.columns(len(h["compare"]))

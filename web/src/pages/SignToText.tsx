@@ -8,7 +8,8 @@ import { load, save } from "../lib/storage";
 import { Recognizer, type FrameState } from "../vision/recognizer";
 import type { Hand } from "../vision/handTracker";
 
-interface Turn { user: string; replies: Reply[] }
+interface Reading { raw: string; text: string; journal: string[] }
+interface Turn { user: string; replies: Reply[]; read?: Reading }
 const EMPTY: FrameState = { sentence: "", handPresent: false, top: [], moving: false, flash: null, capture: null };
 const LETTERS_PERSONAL = "ABCDEFGHIKLMNOPQRSTUVWXY";
 
@@ -46,6 +47,7 @@ export default function SignToText() {
   // conversation
   const [turns, setTurns] = useState<Turn[]>([]);
   const [thinking, setThinking] = useState(false);
+  const [lastRead, setLastRead] = useState<Reading | null>(null);   // stays visible after the agent answers
   const cloudUsed = useRef(0);
 
   // personalization
@@ -89,15 +91,17 @@ export default function SignToText() {
   useEffect(() => {
     const r = rec.current;
     if (!convOn || !r || !agentView.text || thinking || res.status !== "ready") return;
+    const read: Reading = { raw: r.builder.get().trim(), text: r.agent.interpretation, journal: [...r.agent.journal] };
     const userMsg = r.agent.consume();
     if (!userMsg) return;
+    setLastRead(read);
     const history = turns.map((t) => [t.user, t.replies[0]?.text ?? ""] as [string, string]);
     const allowCloud = cloudUsed.current < MAX_CLOUD_REPLIES;
     setThinking(true);
     (compareOn && allowCloud ? compare(userMsg, history, res.res.vocab) : respond(userMsg, history, provider, res.res.vocab, allowCloud).then((x) => [x]))
       .then((replies) => {
         cloudUsed.current += replies.filter((x) => x.provider !== "Local rules").length;
-        setTurns((ts) => [...ts, { user: userMsg, replies }]);
+        setTurns((ts) => [...ts, { user: userMsg, replies, read }]);
         const main = replies.find((x) => x.text);
         if (voice && main) speak(main.text, main.lang);
         r.builder.clear();
@@ -151,14 +155,21 @@ export default function SignToText() {
           </div>
           <div className="panel">
             <p className="panel-label">Agent interpretation</p>
-            <div className={`readout ${agentView.text ? "" : "empty"}`}>{agentView.text || "—"}</div>
+            {(() => {
+              const shownText = agentView.text || lastRead?.text || "";
+              const shownJournal = agentView.text ? agentView.journal : lastRead?.journal ?? [];
+              return (<>
+                <div className={`readout ${shownText ? "" : "empty"}`}>{shownText || "—"}</div>
+                {!agentView.text && lastRead && <p className="muted">Last sentence, signed as {lastRead.raw}</p>}
+                {shownJournal.length > 0 && (
+                  <details className="fold" style={{ marginTop: 10 }} open>
+                    <summary>Agent reasoning</summary>
+                    <ul className="muted">{shownJournal.map((l, i) => <li key={i}>{l}</li>)}</ul>
+                  </details>
+                )}
+              </>);
+            })()}
             {agentView.suggestions.length > 0 && <p className="muted">Suggestions: {agentView.suggestions.join(", ")}</p>}
-            {agentView.journal.length > 0 && (
-              <details className="fold" style={{ marginTop: 10 }}>
-                <summary>Agent reasoning</summary>
-                <ul className="muted">{agentView.journal.map((l, i) => <li key={i}>{l}</li>)}</ul>
-              </details>
-            )}
           </div>
           <div className="btn-row">
             <button className="btn small" onClick={() => r?.builder.addSpace()}>Space</button>
@@ -180,7 +191,15 @@ export default function SignToText() {
               {turns.length === 0 && <p className="muted">Your conversation will appear here.</p>}
               {turns.map((t, i) => (
                 <div key={i} style={{ display: "contents" }}>
-                  <div className="bubble user">{t.user}</div>
+                  <div className="bubble user">{t.user}
+                    {t.read && (
+                      <details className="read">
+                        <summary>How the agent read it</summary>
+                        <span>Signed: {t.read.raw}</span>
+                        {t.read.journal.map((l, j) => <span key={j}>{l}</span>)}
+                      </details>
+                    )}
+                  </div>
                   {t.replies.length > 1 ? (
                     <div className="compare">
                       {t.replies.map((x, j) => (
