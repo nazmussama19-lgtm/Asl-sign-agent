@@ -16,3 +16,16 @@ jobs:
         run: ruff check .
       - name: Run tests (core modules and conversation engine, no webcam/TF/API key needed)
         run: pytest tests/ -q
+
+  web-models:
+    # The web demo reimplements the Keras models; check the reference forward pass against Keras itself.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install TensorFlow and h5py
+        run: pip install tensorflow-cpu==2.15.0 "numpy<2" h5py pytest
+      - name: NumPy forward pass matches Keras
+        run: pytest tests/test_web_models.py -q
