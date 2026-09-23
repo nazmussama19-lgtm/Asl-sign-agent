@@ -4,7 +4,7 @@ import unicodedata
 import urllib.request
 import streamlit as st
 from ui import inject_css, app_header, find_sign_images, get_best_photos, get_word_sign_gifs, uses_remote_images, img_src
-from word_signs import WORD_TO_SIGN
+from word_signs import WORD_TO_SIGN, sign_video_url
 
 inject_css()
 app_header("Text to Sign", "Type a sentence: known word signs are animated, every other word is "
@@ -54,6 +54,17 @@ def build_items(sentence):
     return items
 
 
+def word_links(sentence):
+    """Words of the sentence that have a real ASL sign but no animation here: (word, sign)."""
+    seen, out = set(), []
+    for w in (clean_word(w) for w in sentence.split()):
+        sign = WORD_TO_SIGN.get(w)
+        if sign and sign not in gifs and sign not in seen:
+            seen.add(sign)
+            out.append((w, sign))
+    return out
+
+
 if st.button("Show in sign language", type="primary", use_container_width=True):
     final = text
     st.session_state.t2s_translated = None
@@ -70,6 +81,7 @@ if st.button("Show in sign language", type="primary", use_container_width=True):
         st.info("Nothing to sign yet: type a few words.")
     else:
         st.session_state.t2s_items = items
+        st.session_state.t2s_words = word_links(final)
         st.session_state.t2s_idx = 0
         st.session_state.t2s_ticks = 0
         st.session_state.t2s_playing = True
@@ -134,6 +146,14 @@ if items:
                     else:
                         st.session_state.t2s_playing = False
         _player()
+
+        links = st.session_state.get("t2s_words") or []
+        if links:
+            st.markdown('<h3 class="asl-h3" style="margin-top:1rem">Word signs in this sentence</h3>',
+                        unsafe_allow_html=True)
+            st.caption("These words have their own sign in ASL. They are spelled above; watch the real sign here.")
+            for w, sign in links:
+                st.markdown(f"- **{w}**: [watch real signers]({sign_video_url(sign)})")
 
         b1, b2 = st.columns(2)
         if b1.button(("Pause" if st.session_state.get("t2s_playing") else "Play"), use_container_width=True):

@@ -4,7 +4,8 @@ import time
 import numpy as np
 import streamlit as st
 from ui import (inject_css, app_header, section, tiles_html, rtc_config, camera_help,
-                get_model, get_labels, find_sign_images, get_word_sign_gifs, predict_one, CAMERA)
+                get_model, get_labels, find_sign_images, get_word_sign_gifs, predict_one, CAMERA,
+                word_sign_labels)
 from asl_core import normalize_landmarks, SentenceBuilder, DynamicDetector, is_thumbs_up
 from agent import InterpretingAgent
 from conversation import (respond, compare, detect_lang, available_providers, is_available,
@@ -465,21 +466,27 @@ if ctx and ctx.video_processor:
                     st.rerun()
 
 # ================= Learn the signs =================
-section("Learn the signs", "Pick a letter to see how to sign it.")
+section("Learn the signs", "Pick a letter or a word to see how to sign it.")
 
 signs = find_sign_images()
-for _n, _p in sorted(get_word_sign_gifs().items()):
-    signs["WORD: " + _n.upper()] = _p
+_gifs = get_word_sign_gifs()
+for _n in sorted(set(word_sign_labels()) | set(_gifs)):
+    signs["WORD: " + _n.upper()] = _gifs.get(_n)      # None: no animation, the video link is shown instead
 csel, cimg, ctip = st.columns([1, 1, 2], gap="large")
 with csel:
     choice = st.selectbox("Sign", list(signs.keys()), index=0)
 with cimg:
-    st.image(signs[choice], caption=choice, use_container_width=True)
+    if signs[choice]:
+        st.image(signs[choice], caption=choice, use_container_width=True)
+    else:
+        st.markdown(f'<div class="sign-face">{html.escape(choice.replace("WORD: ", ""))}</div>',
+                    unsafe_allow_html=True)
 with ctip:
     tip = "Hold the pose steady in front of the camera: the letter is written once it stays stable."
     if choice.startswith("WORD: "):
-        tip = ("Word sign: copy the movement shown in the animation. Turn on Word signs in the sidebar "
-               "to try it live.")
+        tip = ("Word sign: " + ("copy the movement shown in the animation." if signs[choice]
+                                else "watch real people sign it, then copy the movement.")
+               + " Turn on Word signs in the sidebar to try it live.")
     tips = {
         "SPACE": "The 'space' sign from the dataset adds a space between two words.",
         "DELETE": "The 'del' sign erases the last letter.",
@@ -489,6 +496,9 @@ with ctip:
     st.markdown('<div class="panel">' + tips.get(choice, tip) + '</div>', unsafe_allow_html=True)
     from word_signs import sign_video_url
     _w = choice.replace("WORD: ", "").lower()
-    if choice.startswith("WORD: ") or len(choice) == 1:
+    if choice.startswith("WORD: "):
+        st.markdown("")
+        st.link_button("Watch real signers", sign_video_url(_w), icon=":material/play_circle:")
+    elif len(choice) == 1:
         st.markdown(f'<p style="margin-top:.8rem"><a href="{sign_video_url(_w)}" target="_blank">'
                     'Watch real people sign it on SignASL.org</a></p>', unsafe_allow_html=True)

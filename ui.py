@@ -116,6 +116,11 @@ def inject_css():
     .sign-card .row {{ display:flex; justify-content:space-between; align-items:center; width:100%; }}
     .sign-card .k {{ font-family:{DISPLAY}; font-weight:700; font-size:1.3rem; color:{INK}; }}
     .sign-card a {{ font-size:.85rem; }}
+    .sign-card .face {{ height:118px; width:100%; display:flex; align-items:center; justify-content:center;
+        border-radius:8px; background:{MIST}; font-family:{DISPLAY}; font-weight:700; font-size:1.35rem; color:{VIOLET}; }}
+    .sign-grid.words {{ grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); }}
+    .sign-face {{ height:220px; display:flex; align-items:center; justify-content:center; border-radius:12px;
+        background:{MIST}; font-family:{DISPLAY}; font-weight:700; font-size:2rem; color:{VIOLET}; }}
 
     @media (max-width: 760px) {{
         .hero {{ grid-template-columns:1fr; gap:1.6rem; }}
