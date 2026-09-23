@@ -4,6 +4,7 @@ import { Keycaps } from "../components/Keycaps";
 import { SignPicker } from "../components/SignPicker";
 import { compare, detectLang, fetchProviders, MAX_CLOUD_REPLIES, respond, speak, type ProviderId, type ProviderInfo, type Reply } from "../lib/conversation";
 import { useResources } from "../resources";
+import { load, save } from "../lib/storage";
 import { Recognizer, type FrameState } from "../vision/recognizer";
 import type { Hand } from "../vision/handTracker";
 
@@ -34,6 +35,8 @@ export default function SignToText() {
   const [provider, setProvider] = useState<ProviderId>("auto");
   const [compareOn, setCompareOn] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);    // settings sheet on small screens
+  const [panelOpen, setPanelOpen] = useState(() => load("asl.settingsPanel", true));   // left panel on desktop
+  useEffect(() => save("asl.settingsPanel", panelOpen), [panelOpen]);
 
   function resetSettings() {
     setConf(0.8); setStab(4); setCooldown(0.6); setDyn(false); setMoveSens(0.12); setWords(false); setPersonalOn(true);
@@ -126,12 +129,11 @@ export default function SignToText() {
 
   return (
     <>
+      <div className={`workspace ${panelOpen ? "with-panel" : ""}`}>
+      <div className="workspace-main">
       <h1 className="page-title">Sign to text</h1>
       <p className="page-sub">Sign in front of the camera. The agent builds the text, interprets it after a pause, and answers you.</p>
       {res.status === "error" && <p className="feed err">The models could not load ({res.message}). Reload the page.</p>}
-
-      <div className="workspace">
-      <div className="workspace-main">
 
       <div className="grid-2">
         <div className="stack">
@@ -248,6 +250,7 @@ export default function SignToText() {
           <h2>Settings</h2>
           <div className="btn-row">
             <button className="btn small" onClick={resetSettings}>Reset</button>
+            <button className="btn small config-hide" onClick={() => setPanelOpen(false)} aria-label="Hide the settings panel">Hide</button>
             <button className="btn small config-close" onClick={() => setSheetOpen(false)}>Done</button>
           </div>
         </div>
@@ -278,6 +281,7 @@ export default function SignToText() {
         </div>
       </aside>
       <button className="btn primary config-toggle" onClick={() => setSheetOpen(true)}>Settings</button>
+      {!panelOpen && <button className="btn config-tab" onClick={() => setPanelOpen(true)} aria-label="Show the settings panel">Settings</button>}
       </div>
     </>
   );
