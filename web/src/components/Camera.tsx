@@ -8,7 +8,8 @@ const BONES = [[0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8], [
   [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [17, 18], [18, 19], [19, 20], [0, 17]];
 const TIPS = new Set([4, 8, 12, 16, 20]);
 
-const INK = "14, 19, 48";
+const INK = "12, 10, 28";   // Nocturne night: the private modes and the vignette
+const LIGHT = "168, 156, 255"; // lavender rim light
 const TINY_W = 36;   // the frame is redrawn this small, then blown back up: nothing survives
 
 interface Props {
@@ -85,8 +86,8 @@ export function Camera({ numHands, onHands, overlay, caption }: Props) {
             ctx.fillRect(0, 0, W, H);
           } else {
             const back = ctx.createRadialGradient(W / 2, H * 0.45, 0, W / 2, H * 0.45, Math.max(W, H) * 0.7);
-            back.addColorStop(0, "#161C3E");
-            back.addColorStop(1, "#0B0F26");
+            back.addColorStop(0, "#221E4E");
+            back.addColorStop(1, "#0C0A1C");
             ctx.fillStyle = back;
             ctx.fillRect(0, 0, W, H);
           }
@@ -122,9 +123,9 @@ export function Camera({ numHands, onHands, overlay, caption }: Props) {
             // a soft rim, so the hand reads as lit rather than cut out
             for (const win of windows.current) {
               const rim = ctx.createRadialGradient(win.x, win.y, win.r * 0.82, win.x, win.y, win.r * 1.04);
-              rim.addColorStop(0, "rgba(246, 216, 255, 0)");
-              rim.addColorStop(0.6, "rgba(246, 216, 255, 0.28)");
-              rim.addColorStop(1, "rgba(246, 216, 255, 0)");
+              rim.addColorStop(0, `rgba(${LIGHT}, 0)`);
+              rim.addColorStop(0.6, `rgba(${LIGHT}, 0.3)`);
+              rim.addColorStop(1, `rgba(${LIGHT}, 0)`);
               ctx.fillStyle = rim;
               ctx.beginPath();
               ctx.arc(win.x, win.y, win.r * 1.04, 0, Math.PI * 2);
@@ -143,13 +144,16 @@ export function Camera({ numHands, onHands, overlay, caption }: Props) {
 
       for (const P of points) {
         ctx.lineCap = "round";
-        ctx.strokeStyle = "rgba(255,255,255,0.92)";
+        ctx.strokeStyle = "rgba(255,255,255,0.95)";
         ctx.lineWidth = Math.max(3, W / 180);
+        ctx.shadowColor = "rgba(125, 140, 255, 0.9)";   // the skeleton glows, like the rest of the interface
+        ctx.shadowBlur = W / 70;
         for (const [a, b] of BONES) { ctx.beginPath(); ctx.moveTo(P[a][0], P[a][1]); ctx.lineTo(P[b][0], P[b][1]); ctx.stroke(); }
+        ctx.shadowBlur = 0;
         P.forEach(([x, y], i) => {
           ctx.beginPath();
           ctx.arc(x, y, TIPS.has(i) ? W / 110 : W / 160, 0, Math.PI * 2);
-          ctx.fillStyle = TIPS.has(i) ? "#F6D8FF" : "#0E1330";
+          ctx.fillStyle = TIPS.has(i) ? "#A99BFF" : "#0E0C22";
           ctx.fill();
           ctx.lineWidth = 2;
           ctx.strokeStyle = "#fff";

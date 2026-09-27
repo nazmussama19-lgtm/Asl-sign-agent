@@ -67,14 +67,14 @@ export default function TextToSign() {
         const img = new Image(); img.onload = () => { cache.set(src, img); ok(img); }; img.onerror = ko; img.src = src;
       });
       for (const it of items) {
-        ctx.fillStyle = "#F4F5FA"; ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = "#EDF1F9"; ctx.fillRect(0, 0, W, H);
         if (it.type === "letter") {
           const img = await load(letterImage(it.ch));
           const s = Math.min(290 / img.width, 290 / img.height);
           ctx.drawImage(img, (W - img.width * s) / 2, (320 - img.height * s) / 2, img.width * s, img.height * s);
         }
-        ctx.fillStyle = "#0E1330"; ctx.fillRect(0, 320, W, 32);
-        ctx.fillStyle = "#fff"; ctx.font = "600 16px 'DM Sans', sans-serif";
+        ctx.fillStyle = "#172036"; ctx.fillRect(0, 320, W, 32);
+        ctx.fillStyle = "#fff"; ctx.font = "600 16px Manrope, sans-serif";
         ctx.fillText(it.type === "letter" ? it.ch : "Pause", 12, 342);
         const { data } = ctx.getImageData(0, 0, W, H);
         const palette = quantize(data, 64);
