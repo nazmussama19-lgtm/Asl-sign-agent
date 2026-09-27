@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { HandLandmarker } from "@mediapipe/tasks-vision";
 import { createHandTracker, toHands, type Hand } from "../vision/handTracker";
+import { analysisDue } from "../lib/rate";
 import { load, save } from "../lib/storage";
 import { handWindow, isPrivacy, MODES, PRIVACY_HINT, PRIVACY_KEY, PRIVACY_LABEL, type Circle, type Privacy } from "../lib/privacy";
 
@@ -48,7 +49,7 @@ export function Camera({ numHands, onHands, overlay, caption }: Props) {
 
   useEffect(() => {
     if (status !== "running") return;
-    let raf = 0, lastTime = -1;
+    let raf = 0, lastTime = -1, lastAnalysis = -Infinity;
     const scratch = (ref: { current: HTMLCanvasElement | null }, w: number, h: number) => {
       if (!ref.current) ref.current = document.createElement("canvas");
       const c = ref.current;
@@ -160,7 +161,12 @@ export function Camera({ numHands, onHands, overlay, caption }: Props) {
           ctx.stroke();
         });
       }
-      handler.current(toHands(result, W, H));
+      // drawn on every frame, recognised at the rate the settings were tuned for (see lib/rate.ts)
+      const at = performance.now();
+      if (analysisDue(at, lastAnalysis)) {
+        lastAnalysis = at;
+        handler.current(toHands(result, W, H));
+      }
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
