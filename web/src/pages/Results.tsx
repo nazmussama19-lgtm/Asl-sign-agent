@@ -18,25 +18,25 @@ export default function Results() {
 
       <h2 className="section-title" style={{ marginTop: 20 }}>Letters (static signs)</h2>
       <div className="metrics" style={{ marginTop: 16 }}>
-        <div className="panel metric"><b>99.23%</b><span>test accuracy</span></div>
+        <div className="panel metric"><b>99.23<small className="pct">%</small></b><span>test accuracy</span></div>
         <div className="panel metric"><b>28</b><span>classes: A to Z, space and delete</span></div>
         <div className="panel metric"><b>{lowest[1].toFixed(2)}</b><span>lowest F1-score (letter {lowest[0]})</span></div>
       </div>
 
       <div className="panel" style={{ marginTop: 18, overflowX: "auto" }}>
         <p className="panel-label">F1-score by sign</p>
-        <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", minWidth: 640 }} role="img" aria-label="F1-score of each sign, all above 0.95">
+        <svg viewBox={`0 0 ${W} ${H}`} className="plot" style={{ width: "100%", minWidth: 640 }} role="img" aria-label="F1-score of each sign, all above 0.95">
           {[0.9, 0.95, 1].map((v) => (
             <g key={v}>
-              <line x1={pad.l} x2={W - pad.r} y1={y(v)} y2={y(v)} stroke="#D8DBE6" />
-              <text x={pad.l - 8} y={y(v) + 4} textAnchor="end" fontSize="11" fill="#6A6F8C">{v.toFixed(2)}</text>
+              <line x1={pad.l} x2={W - pad.r} y1={y(v)} y2={y(v)} className="grid" />
+              <text x={pad.l - 8} y={y(v) + 4} textAnchor="end" fontSize="11" className="axis">{v.toFixed(2)}</text>
             </g>
           ))}
           {rows.map(([k, v], i) => (
             <g key={k}>
-              <line x1={x(i)} x2={x(i)} y1={y(lo)} y2={y(v)} stroke="#D3D6E3" strokeWidth={3} strokeLinecap="round" />
-              <circle cx={x(i)} cy={y(v)} r={5.5} fill="#0E1330"><title>{`${k}: ${v.toFixed(2)}`}</title></circle>
-              <text x={x(i)} y={H - pad.b + 18} textAnchor="middle" fontSize="11" fill="#4E5373" fontFamily="Unbounded, sans-serif">{k === "space" ? "sp" : k}</text>
+              <line x1={x(i)} x2={x(i)} y1={y(lo)} y2={y(v)} className="stem" strokeWidth={3} strokeLinecap="round" />
+              <circle cx={x(i)} cy={y(v)} r={5.5} className="dot"><title>{`${k}: ${v.toFixed(2)}`}</title></circle>
+              <text x={x(i)} y={H - pad.b + 18} textAnchor="middle" fontSize="11" className="key">{k === "space" ? "sp" : k}</text>
             </g>
           ))}
         </svg>

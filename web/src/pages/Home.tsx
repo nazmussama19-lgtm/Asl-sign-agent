@@ -18,20 +18,25 @@ export default function Home() {
 
   return (
     <>
-      <section className="hero">
+      <section className="hero panel">
         <div>
-          <h1>Your hands speak. The agent answers.</h1>
-          <p>Sign in front of your webcam: letters light up as they are read, the agent turns them into a sentence and replies out loud. Everything runs in your browser.</p>
+          <p className="eyebrow">American Sign Language · in your browser</p>
+          <h1 className="chrome">Sign<br />Agent</h1>
+          <p className="tagline">Your hands speak. The agent answers.</p>
+          <p className="lead">Sign in front of your webcam: letters light up as they are read, the agent turns them into a sentence and replies out loud. Everything runs in your browser.</p>
           <Keycaps text={DEMO} done={done} now={done < DEMO.length ? done : null} size="lg" label="HELLO spelled with keycaps" />
-          <button className="btn primary" onClick={() => navigate("/sign")}>Start signing</button>
-          <div className="stats">
-            <div><b>99.23%</b><span>accuracy on 28 static signs</span></div>
-            <div><b>86%</b><span>on 24 word signs</span></div>
-            <div><b>9</b><span>word signs in this demo, to keep it light</span></div>
-            <div><b>0</b><span>frames uploaded</span></div>
-          </div>
+          <button className="btn primary" onClick={() => navigate("/sign")}>Start signing →</button>
         </div>
-        <HandArt />
+        <div className="orb" aria-hidden="true">
+          <span className="ring a" /><span className="ring b" />
+          <HandArt />
+        </div>
+      </section>
+      <section className="panel stats" aria-label="Key numbers">
+        <div><b>99.23<small className="pct">%</small></b><span>accuracy on 28 static signs</span></div>
+        <div><b>86<small className="pct">%</small></b><span>on 24 word signs</span></div>
+        <div><b>9</b><span>word signs in this demo, to keep it light</span></div>
+        <div><b>0</b><span>frames uploaded</span></div>
       </section>
 
       <h2 className="section-title">How it works</h2>

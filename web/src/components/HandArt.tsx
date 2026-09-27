@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-// 21 hand landmarks of an open hand, drawn in chrome; fingers ripple gently (static if reduced motion).
+// 21 hand landmarks of an open hand, drawn in chrome (colors come from the theme); fingers ripple gently (static if reduced motion).
 const BASE = [[120, 250], [88, 228], [66, 200], [52, 172], [42, 148], [92, 160], [86, 116], [82, 88], [79, 62],
   [120, 154], [120, 106], [120, 74], [120, 46], [146, 160], [152, 114], [155, 85], [158, 60], [170, 172], [181, 140], [187, 118], [192, 96]];
 const BONES = [[0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8], [5, 9], [9, 10], [10, 11], [11, 12],
@@ -36,11 +36,11 @@ export function HandArt() {
     <svg className="hand-art" viewBox="0 0 240 280" role="img" aria-label="Hand skeleton, as the camera sees it">
       <defs>
         <linearGradient id="chrome" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#CFD3E6" /><stop offset=".5" stopColor="#FFFFFF" /><stop offset="1" stopColor="#AEB4CE" />
+          <stop offset="0" className="bone-a" /><stop offset=".5" className="bone-b" /><stop offset="1" className="bone-c" />
         </linearGradient>
         <radialGradient id="halo" cx="50%" cy="55%" r="50%">
-          <stop offset="0" stopColor="#F6D8FF" stopOpacity=".55" /><stop offset=".55" stopColor="#D8F3FF" stopOpacity=".35" />
-          <stop offset="1" stopColor="#E7E9F1" stopOpacity="0" />
+          <stop offset="0" className="halo-a" stopOpacity=".55" /><stop offset=".55" className="halo-b" stopOpacity=".3" />
+          <stop offset="1" className="halo-c" stopOpacity="0" />
         </radialGradient>
       </defs>
       <circle cx="120" cy="150" r="120" fill="url(#halo)" />
@@ -50,7 +50,7 @@ export function HandArt() {
       ))}
       {BASE.map(([x, y], i) => (
         <circle key={i} ref={(el) => { dots.current[i] = el; }} cx={x} cy={y} r={TIPS.has(i) ? 6 : 4.2}
-          fill={TIPS.has(i) ? "#0E1330" : "#FFFFFF"} stroke="#0E1330" strokeWidth={1.4} />
+          className={TIPS.has(i) ? "tip" : "joint"} strokeWidth={1.6} />
       ))}
     </svg>
   );
