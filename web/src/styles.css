@@ -18,6 +18,7 @@
   --cap-ink: #A3ABC6;
   --grad: linear-gradient(120deg, #3F7BF0 0%, #7461EE 100%);
   --grad-soft: linear-gradient(120deg, #86BBFF 0%, #A89CFF 100%);
+  --num: var(--grad);
   --glow: 0 12px 26px -12px rgba(80, 100, 240, 0.7);
   --accent: #4452CC;
   --accent-solid: #5566E8;
@@ -28,9 +29,14 @@
   --stage: radial-gradient(90% 75% at 50% 35%, #D9E1F3 0%, #A9B5D6 100%);
   --stage-ink: #28304C;
   --hud: rgba(255, 255, 255, 0.95);
-  --chrome: linear-gradient(178deg, #FFFFFF 8%, #C3CDE3 40%, #7C88AC 52%, #E4EAF6 60%, #B2BDD6 88%);
-  --chrome-edge: rgba(96, 112, 160, 0.35);
-  --chrome-shadow: drop-shadow(0 8px 14px rgba(70, 90, 160, 0.22));
+  /* polished steel with a dark horizon line, so the title holds on a pale background */
+  --chrome: linear-gradient(180deg, #FFFFFF 2%, #DCE3F5 26%, #8E9AC6 46%, #3D4877 50%, #6E7BB0 58%, #C9D2EE 80%, #F2F5FF 100%);
+  --chrome-edge: rgba(52, 64, 118, 0.55);
+  --chrome-shadow: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.9)) drop-shadow(0 14px 22px rgba(70, 90, 170, 0.3));
+  --btn-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.62) 100%);
+  --btn-edge: rgba(255, 255, 255, 0.98);
+  --btn-shadow: inset 0 1px 0 #FFFFFF, 0 0 0 1px rgba(110, 128, 178, 0.14), 0 10px 24px -14px rgba(60, 80, 160, 0.55);
+  --btn-glow: inset 0 1px 0 rgba(255, 255, 255, 0.55), inset 0 -1px 0 rgba(30, 30, 130, 0.25), 0 0 0 1px rgba(110, 120, 255, 0.3), 0 12px 30px -8px rgba(80, 110, 255, 0.65);
   --aurora-base: radial-gradient(120% 80% at 50% -10%, #FFFFFF 0%, #EDF1F9 60%);
   --aurora-1: #CFE2FF;
   --aurora-2: #E2DBFF;
@@ -58,6 +64,7 @@
   --cap-edge: rgba(0, 0, 0, 0.3);
   --cap-ink: #6F6C99;
   --grad-soft: linear-gradient(120deg, #4F8BFF 0%, #8B6CFF 100%);
+  --num: linear-gradient(120deg, #7FA8FF 0%, #B09CFF 100%);
   --glow: 0 0 0 1px rgba(150, 150, 255, 0.25), 0 0 28px rgba(100, 110, 255, 0.5);
   --accent: #A9B6FF;
   --accent-solid: #8C95FF;
@@ -71,6 +78,10 @@
   --chrome: linear-gradient(178deg, #FFFFFF 8%, #C9CFF5 40%, #6E74B8 52%, #E8EAFF 62%, #9FA6DD 88%);
   --chrome-edge: rgba(255, 255, 255, 0.18);
   --chrome-shadow: drop-shadow(0 0 22px rgba(110, 120, 255, 0.35));
+  --btn-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.13) 0%, rgba(255, 255, 255, 0.04) 100%);
+  --btn-edge: rgba(170, 160, 255, 0.28);
+  --btn-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 10px 24px -14px rgba(0, 0, 0, 0.9);
+  --btn-glow: inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -1px 0 rgba(20, 10, 90, 0.35), 0 0 0 1px rgba(150, 150, 255, 0.35), 0 0 34px rgba(100, 110, 255, 0.55);
   --aurora-base: radial-gradient(120% 80% at 50% -10%, #1E1842 0%, #0C0A1C 62%);
   --aurora-1: #2B3F9E;
   --aurora-2: #4B2F9A;
@@ -153,14 +164,25 @@ main { max-width: 1280px; margin: 0 auto; padding: 36px 24px 80px; }
 @keyframes glint { from { transform: translateX(-70%); } to { transform: translateX(70%); } }
 
 /* ---------- buttons ---------- */
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
+.btn { position: relative; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; gap: 9px; cursor: pointer;
   padding: 12px 18px; border-radius: 14px; font-weight: 600; font-size: 15px; color: var(--ink);
-  background: var(--glass-strong); border: 1px solid var(--glass-edge); box-shadow: 0 8px 20px -16px rgba(40, 50, 120, 0.7);
-  transition: transform 0.12s ease, box-shadow 0.2s ease, background-color 0.2s ease; }
-.btn:hover { transform: translateY(-1px); box-shadow: 0 12px 24px -14px rgba(40, 50, 120, 0.7); }
+  background: var(--btn-bg); border: 1px solid var(--btn-edge); box-shadow: var(--btn-shadow);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  transition: transform 0.15s ease, box-shadow 0.25s ease, filter 0.2s ease; }
+.btn:hover { transform: translateY(-1px); box-shadow: var(--btn-shadow), 0 0 0 4px rgba(116, 97, 238, 0.1); }
 .btn:active { transform: translateY(1px); }
-.btn.primary { background: var(--grad); color: #fff; border-color: rgba(255, 255, 255, 0.4); box-shadow: var(--glow); }
-.btn.primary:hover { filter: brightness(1.08); box-shadow: var(--glow), 0 0 0 4px rgba(116, 97, 238, 0.14); }
+.btn .icon { width: 18px; height: 18px; flex: none; }
+.btn.primary .icon { transition: transform 0.2s ease; }
+.btn.primary:hover .icon { transform: translateX(3px); }
+/* Luminous primary: a glossy top half over the accent, a halo, and a sweep of light on hover */
+.btn.primary { color: #fff; border-color: rgba(255, 255, 255, 0.45); text-shadow: 0 1px 2px rgba(30, 30, 120, 0.35);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.06) 52%, rgba(255, 255, 255, 0) 53%), linear-gradient(120deg, #4A8BFF 0%, #7B66F2 100%);
+  box-shadow: var(--btn-glow); }
+.btn.primary:hover { filter: brightness(1.06) saturate(1.05); box-shadow: var(--btn-glow), 0 0 0 5px rgba(116, 97, 238, 0.14); }
+.btn.primary::after { content: ""; position: absolute; inset: -50% -30%; pointer-events: none; transform: translateX(-120%);
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.55) 50%, transparent 60%); }
+.btn.primary:hover::after { transform: translateX(120%); transition: transform 0.8s ease; }
+.btn.lg { padding: 15px 24px; border-radius: 16px; font-size: 15.5px; }
 .btn.small { padding: 8px 13px; font-size: 13px; border-radius: 11px; }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 .btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -280,13 +302,14 @@ details.fold summary::after { content: " +"; color: var(--ink-3); }
 details.fold[open] summary::after { content: " –"; }
 
 /* ---------- home ---------- */
-.hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 24px; align-items: center; padding: 44px 44px 40px; }
+.hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 24px; align-items: center; padding: 44px 44px 40px; overflow: hidden; }
 .chrome { font-family: var(--display); font-size: clamp(46px, 7.6vw, 104px); line-height: 0.98; letter-spacing: 0.02em; margin: 20px 0 18px;
   background: var(--chrome); -webkit-background-clip: text; background-clip: text; color: transparent;
   -webkit-text-stroke: 1px var(--chrome-edge); filter: var(--chrome-shadow); text-transform: uppercase; }
 .tagline { font-family: var(--display); font-size: clamp(15px, 1.6vw, 19px); line-height: 1.5; margin: 0; }
 .hero p.lead { color: var(--ink-2); font-size: 17px; line-height: 1.65; max-width: 46ch; margin: 12px 0 0; }
 .hero .caps { margin: 28px 0 26px; }
+.hero-ctas { gap: 12px; }
 .orb { position: relative; display: grid; place-items: center; min-height: 380px; }
 .orb .ring { position: absolute; border-radius: 50%; border: 1px solid var(--line); aspect-ratio: 1; }
 .orb .ring.a { width: min(100%, 400px); animation: spin 48s linear infinite; }
@@ -308,9 +331,10 @@ details.fold[open] summary::after { content: " –"; }
 :root[data-theme="dark"] .hand-art line { filter: drop-shadow(0 0 5px rgba(120, 130, 255, 0.85)); }
 .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 18px; padding: 0; }
 .stats > div { padding: 22px 24px; border-left: 1px solid var(--line); }
+.stats .icon { display: block; width: 22px; height: 22px; color: var(--accent); margin-bottom: 12px; }
 .stats > div:first-child { border-left: 0; }
 .stats b { display: block; font-family: var(--display); font-weight: 400; font-size: 28px; letter-spacing: 0.01em; margin-bottom: 6px;
-  background: var(--grad-soft); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  background: var(--num); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .stats span { color: var(--ink-3); font-size: 14px; line-height: 1.45; }
 .steps { list-style: none; padding: 0; margin: 8px 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; counter-reset: s; }
 .steps li { counter-increment: s; padding: 18px 20px 18px 74px; position: relative; color: var(--ink-2); line-height: 1.55; border-radius: 20px;
@@ -324,7 +348,11 @@ details.fold[open] summary::after { content: " –"; }
 .link-card:hover { transform: translateY(-3px); background: var(--glass-strong); }
 .link-card b { font-family: var(--display); font-weight: 400; font-size: 14px; letter-spacing: 0.03em; display: flex; justify-content: space-between; margin-bottom: 8px; color: var(--ink); }
 .link-card b::after { content: "↗"; font-family: var(--text); color: var(--accent); }
-.link-card span { color: var(--ink-2); font-size: 14px; line-height: 1.5; }
+.link-card > span:last-child { color: var(--ink-2); font-size: 14px; line-height: 1.5; }
+.link-card .tile { width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center; margin-bottom: 14px; color: var(--accent);
+  background: var(--btn-bg); border: 1px solid var(--btn-edge); box-shadow: var(--btn-shadow); transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; }
+.link-card .tile .icon { width: 21px; height: 21px; }
+.link-card:hover .tile { color: #fff; background: var(--grad); box-shadow: var(--glow); }
 
 /* ---------- chart & text to sign ---------- */
 .sign-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 12px; }
@@ -366,7 +394,7 @@ details.fold[open] summary::after { content: " –"; }
 /* ---------- results ---------- */
 .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
 .metric b { display: block; font-family: var(--display); font-weight: 400; font-size: 30px; margin-bottom: 6px;
-  background: var(--grad-soft); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  background: var(--num); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .metric span { color: var(--ink-3); font-size: 14px; }
 /* Michroma's percent sign is hard to read: set it in the text face */
 .pct { font-family: var(--text); font-weight: 600; font-size: 0.72em; margin-left: 2px; }
@@ -397,4 +425,5 @@ details.fold[open] summary::after { content: " –"; }
   .cap.fresh::after { animation: none; display: none; }
   .aurora i, .orb .ring.a, .caps .cap.now, .stage .idle::before, .pause-face .dots span { animation: none !important; }
   .btn, .progress div, .link-card, body { transition: none; }
+  .btn.primary::after { display: none; }
 }

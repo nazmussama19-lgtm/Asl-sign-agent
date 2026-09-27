@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { HandArt } from "../components/HandArt";
+import { Icon } from "../components/Icon";
 import { Keycaps } from "../components/Keycaps";
 
 const DEMO = "HELLO";
@@ -25,7 +26,10 @@ export default function Home() {
           <p className="tagline">Your hands speak. The agent answers.</p>
           <p className="lead">Sign in front of your webcam: letters light up as they are read, the agent turns them into a sentence and replies out loud. Everything runs in your browser.</p>
           <Keycaps text={DEMO} done={done} now={done < DEMO.length ? done : null} size="lg" label="HELLO spelled with keycaps" />
-          <button className="btn primary" onClick={() => navigate("/sign")}>Start signing →</button>
+          <div className="btn-row hero-ctas">
+            <button className="btn primary lg" onClick={() => navigate("/sign")}>Start signing <Icon name="arrow" /></button>
+            <Link className="btn lg" to="/practice"><Icon name="target" /> Practice</Link>
+          </div>
         </div>
         <div className="orb" aria-hidden="true">
           <span className="ring a" /><span className="ring b" />
@@ -33,10 +37,10 @@ export default function Home() {
         </div>
       </section>
       <section className="panel stats" aria-label="Key numbers">
-        <div><b>99.23<small className="pct">%</small></b><span>accuracy on 28 static signs</span></div>
-        <div><b>86<small className="pct">%</small></b><span>on 24 word signs</span></div>
-        <div><b>9</b><span>word signs in this demo, to keep it light</span></div>
-        <div><b>0</b><span>frames uploaded</span></div>
+        <div><Icon name="scan" /><b>99.23<small className="pct">%</small></b><span>accuracy on 28 static signs</span></div>
+        <div><Icon name="motion" /><b>86<small className="pct">%</small></b><span>on 24 word signs</span></div>
+        <div><Icon name="layers" /><b>9</b><span>word signs in this demo, to keep it light</span></div>
+        <div><Icon name="lock" /><b>0</b><span>frames uploaded</span></div>
       </section>
 
       <h2 className="section-title">How it works</h2>
@@ -53,12 +57,12 @@ export default function Home() {
       <h2 className="section-title">What you can do</h2>
       <p className="section-sub">Six pages, the same models behind each.</p>
       <div className="links">
-        <Link className="link-card" to="/sign"><b>Sign to text</b><span>Fingerspell or sign whole words; the agent interprets, answers and speaks.</span></Link>
-        <Link className="link-card" to="/practice"><b>Practice</b><span>Spell the word on screen. Adaptive drills bring back the letters you miss most.</span></Link>
-        <Link className="link-card" to="/text"><b>Text to sign</b><span>Type a sentence in English or French and watch it spelled, then export a GIF.</span></Link>
-        <Link className="link-card" to="/chart"><b>ASL chart</b><span>The 26 letters and the 9 word signs of this demo, with videos of real signers.</span></Link>
-        <Link className="link-card" to="/sign"><b>Personalization</b><span>Teach your own sign in 3 gestures, or fix a letter with 5 examples of your hand.</span></Link>
-        <Link className="link-card" to="/results"><b>Results</b><span>How accurate the models are, sign by sign.</span></Link>
+        <Link className="link-card" to="/sign"><span className="tile"><Icon name="camera" /></span><b>Sign to text</b><span>Fingerspell or sign whole words; the agent interprets, answers and speaks.</span></Link>
+        <Link className="link-card" to="/practice"><span className="tile"><Icon name="target" /></span><b>Practice</b><span>Spell the word on screen. Adaptive drills bring back the letters you miss most.</span></Link>
+        <Link className="link-card" to="/text"><span className="tile"><Icon name="type" /></span><b>Text to sign</b><span>Type a sentence in English or French and watch it spelled, then export a GIF.</span></Link>
+        <Link className="link-card" to="/chart"><span className="tile"><Icon name="grid" /></span><b>ASL chart</b><span>The 26 letters and the 9 word signs of this demo, with videos of real signers.</span></Link>
+        <Link className="link-card" to="/sign"><span className="tile"><Icon name="sliders" /></span><b>Personalization</b><span>Teach your own sign in 3 gestures, or fix a letter with 5 examples of your hand.</span></Link>
+        <Link className="link-card" to="/results"><span className="tile"><Icon name="chart" /></span><b>Results</b><span>How accurate the models are, sign by sign.</span></Link>
       </div>
 
       <p className="muted" style={{ marginTop: 48 }}>
